@@ -1,34 +1,18 @@
-import csv
-from matplotlib import pyplot as plt
+
+'''
+Workaround for JoSIM SFQ simulator.
+
+A collection of functions to place common parameterized SFQ elements within a
+netlist.
+
+
+'''
+
 import numpy as np
-import os
-from collections import deque
-
 from subprocess import call
-from itertools import product
 
+########################## GLOBAL PARAMETERS ##########################
 
-'''
-* JJ 1 2 ================================================================
-.param B1=IC
-    B1  1  2 jjmit area=B1
-.param LP1=LP
-    LP1  2 0 LP1
-.param RB1=B0Rs/B1
-    RB1 1 101 RB1
-.param LRB1=(RB1/Rsheet)*Lsheet
-    LRB1 101 0 LRB1
-
-* JJ_NG 4 6 ================================================================
-.param B3=IC/1.4
-B3  4  6 jjmit area=B3
-.param RB3=B0Rs/B3
-RB3 4 106 RB3
-.param LRB3=(RB3/Rsheet)*Lsheet
-LRB3 106 6 LRB3
-'''
-
-########################## GLOBAL PARAMETERS ######################################################
 # 2.067833848E-15/(4*2.5*0.0001)
 Phi0 = 2.067833848E-15
 B0 = 1
@@ -43,22 +27,42 @@ LB = 2e-12
 BiasCoef=0.70
 IB1=BiasCoef*Ic0*IC
 
+
 def ramp(tdelay, imax, init = 0):
+    'Create a piecewise-linear definition of ramp source'
     return f'pwl(0 {init} {tdelay} {imax})'
 
-def pulse(time, scale = 1):
-    pmin = 0
-    pw = 3e-15 / 5e-4
-    pmax = 5e-4 * scale
-
-    # half_pw = pw/2
-    triangles = ['pwl(0 0 '] + [str(q) for t in time for q in (t-pw/2, pmin, t, pmax, t+pw/2, 0)] + [')']
+def pulse(time, pmax0 = 5e-4, pulse_width = 6e-12, scale = 1):
+    '''Create a piecewise-linear sequence with triangular pulses at specific time.
+    Inputs:
+        time        : list of pulse peaks (in seconds)
+        pmax0       : height of a single pulse. Default is 5e-4
+        pulse_width : width of a pulse. Default is 6e-12
+        scale       : multiplier for the height (and, consequently, area) of the
+                    pulse. Can be used to feed a simultaneous clock signal to
+                    multiple elements.
+    WARNING: this function cannot combine closely spaced pulses. ValueError is
+    raised if the peaks are placed too closely.
+    '''
+    differences = np.diff(time)
+    if np.any(differences < pulse_width):
+        raise ValueError('The pulse peaks are spaced too closely')
+    pmax = pmax0 * scale
+    hw = pulse_width / 2 #half width
+    triangles = ['pwl(0 0 '] + [str(q) for t in time for q in (t-hw, 0, t, pmax, t+hw, 0)] + [')']
     return ' '.join(triangles)
-        # f.write('Ia  0   n1   pwl( 0 0 55p 0 58p 1000u 61p 0 200p 0 203p 1000u 206p 0 210p 0)\n')
-        # f.write('Ib  0   n2   pwl( 0 0 60p 0 63p 1000u 66p 0 205p 0 208p 1000u 211p 0 215p 0)\n')
 
 def jj(f, n1, n2, model='jjmit', A = None, AF = 1, B0Rs = B0Rs, Rsheet = Rsheet, Lsheet = Lsheet, LP = LP, add_LP=True):
-    '''A is ignored when AF is specified '''
+    '''Create a JJ with parasitics based on MITLL technology.
+    INPUTS:
+        f : target file handle
+        n1, n2 : input/output nodes
+        model : name of the jj model specified in .cir file
+        A : area of the JJ
+        AF : convenience parameter for area factor
+        add_LP : flag indicating whether the LP inductance is added to the shunt
+        inductance
+    '''
     if AF is not None:
         A = AF * IC
     rb1 = B0Rs/A
@@ -71,7 +75,7 @@ def jj(f, n1, n2, model='jjmit', A = None, AF = 1, B0Rs = B0Rs, Rsheet = Rsheet,
         n_jct = f'{n1}_jct'
         return f.write(f'''
 ************************ JJ from {n1} to GND ************************
-B_{n1}_0   {n1}   {n_mid_jj} jjmit area={A}
+B_{n1}_0   {n1}   {n_mid_jj} {model} area={A}
 LP_{n1}_0  {n_mid_jj}   {n_jct} {LP}
 RB_{n1}_0  {n1} {n_mid_bias} {rb1}
 LRB_{n1}_0 {n_mid_bias} {n_jct} {lrb1}
@@ -82,7 +86,7 @@ LJCT_{n1}_0 {n_jct} {n2} 1e-18
         n_jct = f'{n1}_{n2}_jct'
         return f.write(f'''
 ************************ JJ from {n1} to {n2} ************************
-B_{n1}_{n2}  {n1}  {n_jct} jjmit area={A}
+B_{n1}_{n2}  {n1}  {n_jct} {model} area={A}
 RB_{n1}_{n2}  {n1} {n_mid_bias} {rb1}
 LRB_{n1}_{n2} {n_mid_bias} {n_jct} {lrb1}
 LJCT_{n1}_{n2} {n_jct} {n2} 1e-18
@@ -287,8 +291,6 @@ def jtl(f, name, a, q, LF = 2, AF = 1, in_ind = True, out_ind = True, njj = 1):
         ind(f, i, j, LF = LF)
     for i in jjs:
         jj( f, i, '0', AF = 1)
-
-def spl(f, name, )
 
 def rdff(f, name, a, r, t, q):
     f.write(f'***//*** RDFF {a}, {r} -> {q} ***//***\n')

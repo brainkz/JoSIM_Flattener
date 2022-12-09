@@ -1,0 +1,132 @@
+*
+
+***//*** RDFF A, R -> q ***//***
+
+L_A_rdff_a1 A rdff_a1 2.067833848e-12
+
+************************ Bias line for rdff_a1 ************************
+L_bias_rdff_a1  rdff_a1 rdff_a1_mid_bias 2e-12
+I_bias_rdff_a1  0 rdff_a1_mid_bias 0.00017499999999999997
+
+************************ JJ from rdff_a1 to GND ************************
+B_rdff_a1_0   rdff_a1   rdff_a1_mid_shunt jjmit area=2.5
+LP_rdff_a1_0  rdff_a1_mid_shunt   rdff_a1_jct 2e-13
+RB_rdff_a1_0  rdff_a1 rdff_a1_mid 2.7439617672
+LRB_rdff_a1_0 rdff_a1_mid rdff_a1_jct 1.750338398468e-12
+LJCT_rdff_a1_0 rdff_a1_jct 0 1e-18
+
+L_rdff_a1_rdff_ar rdff_a1 rdff_ar 2.067833848e-12
+
+L_R_rdff_r1 R rdff_r1 2.067833848e-12
+
+************************ Bias line for rdff_r1 ************************
+L_bias_rdff_r1  rdff_r1 rdff_r1_mid_bias 2e-12
+I_bias_rdff_r1  0 rdff_r1_mid_bias 0.00017499999999999997
+
+************************ JJ from rdff_r1 to rdff_r2 ************************
+B_rdff_r1_rdff_r2  rdff_r1  rdff_r1_rdff_r2_jct jjmit area=1.7857142857142858
+RB_rdff_r1_rdff_r2  rdff_r1 rdff_r1_rdff_r2_mid 3.84154647408
+LRB_rdff_r1_rdff_r2 rdff_r1_rdff_r2_mid rdff_r1_rdff_r2_jct 2.3704737578551998e-12
+LJCT_rdff_r1_rdff_r2 rdff_r1_rdff_r2_jct rdff_r2 1e-18
+
+************************ JJ from rdff_r1 to GND ************************
+B_rdff_r1_0   rdff_r1   rdff_r1_mid_shunt jjmit area=2.5
+LP_rdff_r1_0  rdff_r1_mid_shunt   rdff_r1_jct 2e-13
+RB_rdff_r1_0  rdff_r1 rdff_r1_mid 2.7439617672
+LRB_rdff_r1_0 rdff_r1_mid rdff_r1_jct 1.750338398468e-12
+LJCT_rdff_r1_0 rdff_r1_jct 0 1e-18
+
+L_rdff_r2_rdff_r3 rdff_r2 rdff_r3 2.067833848e-12
+
+************************ JJ from rdff_r3 to rdff_r4 ************************
+B_rdff_r3_rdff_r4  rdff_r3  rdff_r3_rdff_r4_jct jjmit area=1.7857142857142858
+RB_rdff_r3_rdff_r4  rdff_r3 rdff_r3_rdff_r4_mid 3.84154647408
+LRB_rdff_r3_rdff_r4 rdff_r3_rdff_r4_mid rdff_r3_rdff_r4_jct 2.3704737578551998e-12
+LJCT_rdff_r3_rdff_r4 rdff_r3_rdff_r4_jct rdff_r4 1e-18
+
+************************ JJ from rdff_r3 to GND ************************
+B_rdff_r3_0   rdff_r3   rdff_r3_mid_shunt jjmit area=2.5
+LP_rdff_r3_0  rdff_r3_mid_shunt   rdff_r3_jct 2e-13
+RB_rdff_r3_0  rdff_r3 rdff_r3_mid 2.7439617672
+LRB_rdff_r3_0 rdff_r3_mid rdff_r3_jct 1.750338398468e-12
+LJCT_rdff_r3_0 rdff_r3_jct 0 1e-18
+
+L_rdff_r4_rdff_ar rdff_r4 rdff_ar 2.067833848e-12
+
+L_t_rdff_t1 t rdff_t1 2.067833848e-12
+
+************************ Bias line for rdff_t1 ************************
+L_bias_rdff_t1  rdff_t1 rdff_t1_mid_bias 2e-12
+I_bias_rdff_t1  0 rdff_t1_mid_bias 0.00017499999999999997
+
+************************ JJ from rdff_t1 to rdff_t2 ************************
+B_rdff_t1_rdff_t2  rdff_t1  rdff_t1_rdff_t2_jct jjmit area=3.5
+RB_rdff_t1_rdff_t2  rdff_t1 rdff_t1_rdff_t2_mid 1.9599726908571429
+LRB_rdff_t1_rdff_t2 rdff_t1_rdff_t2_mid rdff_t1_rdff_t2_jct 1.3073845703342858e-12
+LJCT_rdff_t1_rdff_t2 rdff_t1_rdff_t2_jct rdff_t2 1e-18
+
+************************ JJ from rdff_t1 to GND ************************
+B_rdff_t1_0   rdff_t1   rdff_t1_mid_shunt jjmit area=2.5
+LP_rdff_t1_0  rdff_t1_mid_shunt   rdff_t1_jct 2e-13
+RB_rdff_t1_0  rdff_t1 rdff_t1_mid 2.7439617672
+LRB_rdff_t1_0 rdff_t1_mid rdff_t1_jct 1.750338398468e-12
+LJCT_rdff_t1_0 rdff_t1_jct 0 1e-18
+
+L_rdff_t2_rdff_to rdff_t2 rdff_to 2.067833848e-12
+
+************************ JJ from rdff_to to rdff_b1 ************************
+B_rdff_to_rdff_b1  rdff_to  rdff_to_rdff_b1_jct jjmit area=2.5
+RB_rdff_to_rdff_b1  rdff_to rdff_to_rdff_b1_mid 2.7439617672
+LRB_rdff_to_rdff_b1 rdff_to_rdff_b1_mid rdff_to_rdff_b1_jct 1.750338398468e-12
+LJCT_rdff_to_rdff_b1 rdff_to_rdff_b1_jct rdff_b1 1e-18
+
+************************ JJ from rdff_to to GND ************************
+B_rdff_to_0   rdff_to   rdff_to_mid_shunt jjmit area=1.7857142857142858
+LP_rdff_to_0  rdff_to_mid_shunt   rdff_to_jct 2e-13
+RB_rdff_to_0  rdff_to rdff_to_mid 3.84154647408
+LRB_rdff_to_0 rdff_to_mid rdff_to_jct 2.3704737578551998e-12
+LJCT_rdff_to_0 rdff_to_jct 0 1e-18
+
+L_rdff_b1_rdff_ar rdff_b1 rdff_ar 2.067833848e-12
+
+L_q_rdff_q1 q rdff_q1 2.067833848e-12
+
+************************ JJ from rdff_q1 to GND ************************
+B_rdff_q1_0   rdff_q1   rdff_q1_mid_shunt jjmit area=2.5
+LP_rdff_q1_0  rdff_q1_mid_shunt   rdff_q1_jct 2e-13
+RB_rdff_q1_0  rdff_q1 rdff_q1_mid 2.7439617672
+LRB_rdff_q1_0 rdff_q1_mid rdff_q1_jct 1.750338398468e-12
+LJCT_rdff_q1_0 rdff_q1_jct 0 1e-18
+
+L_rdff_q1_rdff_q2 rdff_q1 rdff_q2 2.067833848e-12
+
+************************ Bias line for rdff_q2 ************************
+L_bias_rdff_q2  rdff_q2 rdff_q2_mid_bias 2e-12
+I_bias_rdff_q2  0 rdff_q2_mid_bias 0.00017499999999999997
+
+L_rdff_q2_rdff_q3 rdff_q2 rdff_q3 2.067833848e-12
+
+************************ JJ from rdff_q3 to GND ************************
+B_rdff_q3_0   rdff_q3   rdff_q3_mid_shunt jjmit area=2.5
+LP_rdff_q3_0  rdff_q3_mid_shunt   rdff_q3_jct 2e-13
+RB_rdff_q3_0  rdff_q3 rdff_q3_mid 2.7439617672
+LRB_rdff_q3_0 rdff_q3_mid rdff_q3_jct 1.750338398468e-12
+LJCT_rdff_q3_0 rdff_q3_jct 0 1e-18
+
+L_rdff_q3_rdff_to rdff_q3 rdff_to 2.067833848e-12
+IA   0    A  pwl(0 0  3.17e-10 0 3.2e-10 0.0005 3.2299999999999997e-10 0 7.97e-10 0 8e-10 0.0005 8.03e-10 0 1.2769999999999998e-09 0 1.28e-09 0.0005 1.283e-09 0 1.7569999999999998e-09 0 1.76e-09 0.0005 1.763e-09 0 )
+.print DEVI IA
+IR   0    R  pwl(0 0  6.37e-10 0 6.4e-10 0.0005 6.43e-10 0 8.77e-10 0 8.8e-10 0.0005 8.83e-10 0 1.597e-09 0 1.6e-09 0.0005 1.6030000000000002e-09 0 1.837e-09 0 1.84e-09 0.0005 1.8430000000000001e-09 0 )
+.print DEVI IR
+ROUT_q q  0   1
+.print DEVI ROUT_q
+.print DEVI L_rdff_t2_rdff_to
+.print DEVI L_rdff_q3_rdff_to
+.print PHASE B_rdff_t1_rdff_t2
+.print PHASE B_rdff_to_0
+.print PHASE B_rdff_to_rdff_b1
+Iclk 0   t  pwl(0 0  2.37e-10 0 2.4e-10 0.0005 2.43e-10 0 4.77e-10 0 4.8e-10 0.0005 4.83e-10 0 7.17e-10 0 7.2e-10 0.0005 7.23e-10 0 9.57e-10 0 9.6e-10 0.0005 9.63e-10 0 1.197e-09 0 1.2e-09 0.0005 1.203e-09 0 1.437e-09 0 1.44e-09 0.0005 1.443e-09 0 1.6769999999999999e-09 0 1.68e-09 0.0005 1.683e-09 0 1.917e-09 0 1.92e-09 0.0005 1.923e-09 0 )
+.print DEVI Iclk
+.tran 1e-12 2.16e-09
+.model jjmit jj( rtype=1, vg=2.6mV, cap=0.07pF, r0=160, rn=16, icrit=0.1mA)
+.end
