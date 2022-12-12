@@ -13,14 +13,14 @@ Example:
     The following netlist is flattened using this tool.
 
 Todo:
+    * Add control of verbosity
     * Run additional tests
-    * Parameter handling in sources
-    * Replace local jj models within the subcircuits
-
+    * Support local jj models within the subcircuits
 """
 
 import os
 import re
+import sys
 from argparse import ArgumentParser
 
 from collections import deque
@@ -337,7 +337,12 @@ def parse_source(line: str, variables: dict):
         else:
             print(f'Failed to evaluate parameter {item}')
     else:
-        raise ValueError('Unsupported source type')
+        success, _, val = parse_expr(param_str, variables)
+        if success:
+            param_str = f"DC {val}"
+        else:
+            print(f'Failed to evaluate parameter {item}')
+        # raise ValueError('Unsupported source type')
 
     return _type, label, (n1, n2), param_str
 
@@ -643,7 +648,7 @@ def write_flat_file(subckts: dict, commands: list, temp_file: str, params: dict)
         for line in commands:
             fobj.write(line + '\n')
 
-def run(cir_path, csv_path, temp_file):
+def run(cir_path, csv_path, temp_file, args):
     subckts, params, order, commands = flatten_netlist(cir_path, temp_file)
     status = call(['josim-cli', '-o', csv_path, temp_file, '-V', '1'])
     if status == 0:
@@ -657,51 +662,25 @@ if __name__ == '__main__':
         description = 'The utility to parse netlists while supporting keyword parameters',)
 
     parser.add_argument('netlist_path')
-    parser.add_argument('-o', '--output', action='store_const', const = None)
-    args = parser.parse_args()
-    print(args.netlist_path, args.output)
+    parser.add_argument('-t', '--tempfile', default = '')
+    parser.add_argument('-d', '--delete', action='store_true')
+    parser.add_argument('-n', '--no_sim', action='store_true')
 
+    args, josim_args = parser.parse_known_args()
+    print('PARSED:', args.netlist_path, '-t', args.tempfile, '-n', args.no_sim)
+    print('SKIPPED:',josim_args)
     folder, cir_name = os.path.split(args.netlist_path)
     base, ext = os.path.splitext(cir_name)
-    temp_file = f'{base}_temp.cir'
-    if args.output is None:
-        csv_path = f'{base}.csv'
+    temp_file = f'{base}_temp.cir' if not args.tempfile else args.tempfile
 
-    run(args.netlist_path, csv_path, temp_file)
-
-
-
-if False:
-
-    if cir_path is None:
-        cir_path = args[0]
-    folder, cir_name = os.path.split(cir_path)
-    base, ext = os.path.splitext(cir_name)
-    temp_file = f'{base}_temp.cir'
-
-    if csv_path is None:
-        if len(args) > 1:
-            csv_path = sys.argv[1]
-        else:
-            csv_file = f'{base}.csv'
-
-    path = '/Users/brainkz/Documents/GitHub/JoSIM/test/ex_mitll_dff_wr.cir'
-
-
-if False:
-    # file = 'ignore/josim_test.cir'
-    # temp_file = 'ignore/josim_test_temp.cir'
-
-    # path = '/Users/brainkz/Documents/GitHub/JoSIM/test/ex_jtl_string.cir'
-    path = '/Users/brainkz/Documents/GitHub/JoSIM/test/ex_mitll_dff_wr.cir'
-    # path = 'jtl_test.cir'
-
-    temp_file = f'ignore/{base}_temp.cir'
-    csv_file = f'ignore/{base}.csv'
-    csv_file_temp = f'ignore/{base}_temp.csv'
-
-    subckts, params, order, commands = flatten_netlist(path, temp_file)
-    from subprocess import call
-    call(['open', temp_file])
-    call(['josim-cli', '-o', csv_file, path, '-V', '1'])
-    call(['josim-cli', '-o', csv_file_temp, temp_file, '-V', '1'])
+    subckts, params, order, commands = flatten_netlist(args.netlist_path, temp_file)
+    if not args.no_sim:
+        print(['josim-cli', temp_file] + josim_args)
+        status = call(['josim-cli', temp_file] + josim_args)
+        if status == 0:
+            print('Circuit successfully simulated')
+    if args.delete:
+        os.remove(temp_file)
+        print(f'Temporary file is deleted')
+    else:
+        print(f'Temporary file is saved at {temp_file}')
