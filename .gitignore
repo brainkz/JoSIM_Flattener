@@ -1,2 +1,4 @@
 .DS_Store
 ignore/
+netlist_flattener.egg-info/
+__pycache__/
