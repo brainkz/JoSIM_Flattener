@@ -1,4 +1,6 @@
-Netlist parsing utility for JoSIM enabling the use of parameters within the subcircuits. 
+__Netlist flattener__
+
+Netlist flattening utility converting the file with nested subcircuits into an equivalent netlist without subcircuits.
 
 This Python tool enables the use of named subcircuit parameters in [JoSIM](https://github.com/JoeyDelp/JoSIM), Superconductor Circuit Simulator.
 
