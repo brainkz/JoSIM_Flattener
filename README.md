@@ -51,3 +51,5 @@ __Dependencies__:
 - [pyparsing](https://pypi.org/project/pyparsing/)
 - [josim-cli](https://github.com/JoeyDelp/JoSIM)
 
+__Feedback__: 
+Please report the bugs or suggestions to [issues](https://github.com/brainkz/Netlist-Flattener/issues), thank you!
