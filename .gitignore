@@ -2,3 +2,6 @@
 ignore/
 netlist_flattener.egg-info/
 __pycache__/
+.DS_Store
+.gitattributes
+.gitignore 
