@@ -48,6 +48,6 @@ where
 
 __Dependencies__:
 - python3 
-- pyparsing
-- josim-cli
+- [pyparsing](https://pypi.org/project/pyparsing/)
+- [josim-cli](https://github.com/JoeyDelp/JoSIM)
 
