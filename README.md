@@ -1,6 +1,6 @@
 Netlist parsing utility for JoSIM enabling the use of parameters within the subcircuits. 
 
-This Python tool enables the use of named subcircuit parameters in [JoSIM]("https://github.com/JoeyDelp/JoSIM" JoSIM), Superconductor Circuit Simulator.
+This Python tool enables the use of named subcircuit parameters in [JoSIM](https://github.com/JoeyDelp/JoSIM), Superconductor Circuit Simulator.
 
 The tool replaces a netlist with a parameterized subcircuit
 
