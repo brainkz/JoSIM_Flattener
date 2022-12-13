@@ -165,9 +165,7 @@ def parse_subckt_inst(line: str, subckts: dict, just_model: bool = False):
 
     if just_model:
         return subc_name
-    # subc_name, *io_and_params = line.split()
     else:
-        # breakpoint()
         subc_io = subckts[subc_name]['io']
         n_io = len(subc_io)
         assert(len(inst_io) == n_io)
@@ -512,7 +510,6 @@ def topsort_subckts(subckts: dict):
     while dependencies:
         print('Detected following dependencies:')
         print(dependencies)
-        # breakpoint()
         for sub, dep in dependencies.items():
             if not dep and sub not in order:
                 order.append(sub)
@@ -558,7 +555,6 @@ def flatten_netlist(file: str, temp_file: str):
     for line in line_iter:
         if line.startswith('.SUBCKT'):
             subckts = parse_subckt_def(line, line_iter, subckts)
-            breakpoint()
         elif line.startswith('X'): # Top level subcircuit instance
             subckts['main']['raw_lines'].append(line)
             subc_name = parse_subckt_inst(line, subckts, just_model = True)
@@ -603,7 +599,6 @@ def flatten_netlist(file: str, temp_file: str):
 
     for parent in order: # replace subckt definitions bottom up
         for x_label, child, inst_io, resolved_params in subckts[parent]['subckt_inst']:
-            # breakpoint()
             variables = params['main'] | params[subc] | subckts[subc]['local_params'] | resolved_params
             model_io = subckts[child]['io']
             io_map = dict(zip(model_io, inst_io)) # map child_io to parent io
