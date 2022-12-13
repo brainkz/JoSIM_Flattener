@@ -161,12 +161,13 @@ def parse_subckt_inst(line: str, subckts: dict, just_model: bool = False):
     elif (subc_name:= subc_name_and_io[-1]) in subckts:
         inst_io = subc_name_and_io[:-1]
     else:
-        raise NameError('subckt declaration syntax not recognized')
+        raise NameError('SUBCKT declaration syntax not recognized')
 
     if just_model:
         return subc_name
     # subc_name, *io_and_params = WS.split(line)
     else:
+        # breakpoint()
         subc_io = subckts[subc_name]['io']
         n_io = len(subc_io)
         assert(len(inst_io) == n_io)
@@ -579,7 +580,7 @@ def flatten_netlist(file: str, temp_file: str):
 
     order = topsort_subckts(subckts)
     for subc in order[::-1]: # propagate kw arguments top down
-        variables = params['main'] | params[subc] | subckts[subc]['local_params']
+        variables = params['main'] | params[subc] # | subckts[subc]['local_params']
         assert(not any((arg in subckts[subc]['local_params']) for arg in params[subc]))
 
         for line in subckts[subc]['raw_lines']:
@@ -609,12 +610,35 @@ def flatten_netlist(file: str, temp_file: str):
 
     for parent in order: # replace subckt definitions bottom up
         for x_label, child, inst_io, resolved_params in subckts[parent]['subckt_inst']:
+            # breakpoint()
+            variables = params['main'] | params[subc] | subckts[subc]['local_params'] | resolved_params
             model_io = subckts[child]['io']
             io_map = dict(zip(model_io, inst_io)) # map child_io to parent io
             io_map['0'] = '0'
-            for _type, model_label, model_nodes, model, value in subckts[child]['devices']:
+            for _type, model_label, model_nodes, model, default_values in subckts[child]['devices']:
                 inst_nodes = [io_map.setdefault(n, f'{n}|{x_label}') for n in model_nodes]
                 inst_label = f'{model_label}|{x_label}'
+                if x_label == '2':
+                    breakpoint()
+                if isinstance(default_values, dict):
+                    value = default_values.copy()
+                    for name, val_str in value.items():
+                        if not isinstance(val_str, str):
+                            continue
+                        success, _, val = parse_expr(val_str, variables)
+                        if success:
+                            value[name] = val
+                        else:
+                            print(f'Failed to propagate parameter {val_str}')
+                            value[name] = val_str
+                elif isinstance(default_values, str):
+                    success, _, val = parse_expr(default_values, variables)
+                    if success:
+                        value = val
+                    else:
+                        print(f'Failed to propagate parameter {default_values}')
+                        value = default_values
+
                 subckts[parent]['devices'].append((_type, inst_label, inst_nodes, model, value))
 
     write_flat_file(subckts, commands, temp_file, params)
