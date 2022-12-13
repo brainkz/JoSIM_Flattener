@@ -65,7 +65,7 @@ def parse_subckt_def(line: str, line_iter, subckts: dict):
         subckts : dictionary containing subcircuit parameters. Updated during
         this function execution
     '''
-    _, sub_name, *io_and_params = WS.split(line)
+    _, sub_name, *io_and_params = line.split()
     for i, item in enumerate(io_and_params):
         if '=' in item:
             subckts[sub_name]['local_params'] = dict(EQ.split(param) for param in io_and_params[i:])
@@ -111,7 +111,7 @@ def parse_twonode(line: str, variables: dict):
         The expression "3*scale/k" is evaluated using the variables stored
         in "variables". If evaluation fails, the expression is returned as is.
     '''
-    device_name, *inst_io, val_str = WS.split(line)
+    device_name, *inst_io, val_str = line.split()
     _type, label = device_name[0], device_name[1:]
     success, _, val = parse_expr(val_str, variables)
     if success:
@@ -142,7 +142,7 @@ def parse_subckt_inst(line: str, subckts: dict, just_model: bool = False):
         is parsed as
             "02", "JTLSTRING1000", ("in", "out"), {"size": "1.3", "factor": "10", "scale": "2"}
     '''
-    inst_name, *subc_name_and_io_and_expr = WS.split(line)
+    inst_name, *subc_name_and_io_and_expr = line.split()
     label = inst_name[1:]
 
     # First, extract the parameter expressions
@@ -165,7 +165,7 @@ def parse_subckt_inst(line: str, subckts: dict, just_model: bool = False):
 
     if just_model:
         return subc_name
-    # subc_name, *io_and_params = WS.split(line)
+    # subc_name, *io_and_params = line.split()
     else:
         # breakpoint()
         subc_io = subckts[subc_name]['io']
@@ -204,7 +204,7 @@ def parse_jj(line: str, variables: dict):
         The expressions are evaluated using the variables stored in "variables".
         If evaluation fails, the expression is returned as is.
     '''
-    inst_name, n1, n2, *phase_node_and_model_and_expressions = WS.split(line)
+    inst_name, n1, n2, *phase_node_and_model_and_expressions = line.split()
 
     # Resolve whether the third node is provided
     expressions = []
@@ -261,7 +261,7 @@ def parse_fournode(line: str, variables: dict):
         The expressions are evaluated using the variables stored in "variables".
         If evaluation fails, the expression is returned as is.
     '''
-    inst_name, n1, n2, n3, n4, *expressions = WS.split(line)
+    inst_name, n1, n2, n3, n4, *expressions = line.split()
 
     assert(all('=' in item for item in expressions))
 
@@ -438,28 +438,20 @@ def strip_uncomment_upper_join(file : str):
         line breaks.
     '''
     with open(file, 'r', encoding = 'utf-8') as f:
-        prev_line = ''
-        for prev_line in f:
-            prev_line = prev_line.strip().upper()
-            if not prev_line.startswith('*') or not prev_line:
-                break
-        if prev_line.startswith('+'):
-            raise ValueError('First uncommented line starts with "+"')
-        for next_line in f:
-            next_line = next_line.strip().upper()
-            if next_line.startswith('*') or not next_line:
+
+        for line in f:
+            line = line.strip().upper()
+            if line.startswith('*') or not line:
                 continue
-            elif next_line == '.END':
-                yield prev_line
-                yield next_line
+            elif line.startswith('.INCLUDE'):
+                _, include_path = WS.split(line, 1)
+                yield from strip_uncomment_upper_join(include_path)
+            elif line == '.END':
                 break
-            elif next_line.startswith('+'):
-                prev_line += ' ' + next_line[1:]
+            elif line.startswith('+'):
+                line += ' ' + line[1:]
             else:
-                yield prev_line
-                prev_line = next_line
-        else:
-            yield prev_line
+                yield line
 
 def parse_initial(file : str):
     ''' Initial parsing of a file to determine local and global parameters and
@@ -477,7 +469,7 @@ def parse_initial(file : str):
     line_iter = strip_uncomment_upper_join(file)
     for line in line_iter:
         if line.startswith('.SUBCKT'):
-            _, subc_name, *_ = WS.split(line)
+            _, subc_name, *_ = line.split()
             expressions[subc_name] = deque()
             params[subc_name] = {}
             for line in line_iter:
@@ -566,6 +558,7 @@ def flatten_netlist(file: str, temp_file: str):
     for line in line_iter:
         if line.startswith('.SUBCKT'):
             subckts = parse_subckt_def(line, line_iter, subckts)
+            breakpoint()
         elif line.startswith('X'): # Top level subcircuit instance
             subckts['main']['raw_lines'].append(line)
             subc_name = parse_subckt_inst(line, subckts, just_model = True)
