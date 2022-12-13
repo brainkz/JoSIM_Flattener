@@ -8,7 +8,7 @@ The tool replaces a netlist with a parameterized subcircuit
 
 ```hspice
 * Input netlist: amp_test.cir
-X1 TEST 1 0 AMP=1.0 FREQ=1e9
+X1 TEST 1 0 AMP=2.0
 I1      0 1 1.0
 
 .subckt TEST IN GND AMP=1.0 FREQ=1e9
@@ -27,7 +27,7 @@ into a flattened netlist with parameters replaced by the specified values
 * Flattened netlist: amp_test_temp.cir
 I1 0 1  DC 1.0
 R1|1 1 0  10.0
-I1|1 0 1  SIN(0 1.0 1000000000.0)
+I1|1 0 1  SIN(0 2.0 1000000000.0)
 .TRAN 0.25P 5N 0 1.0P
 .PRINT V(1)
 .END
