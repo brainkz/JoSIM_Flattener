@@ -618,8 +618,6 @@ def flatten_netlist(file: str, temp_file: str):
             for _type, model_label, model_nodes, model, default_values in subckts[child]['devices']:
                 inst_nodes = [io_map.setdefault(n, f'{n}|{x_label}') for n in model_nodes]
                 inst_label = f'{model_label}|{x_label}'
-                if x_label == '2':
-                    breakpoint()
                 if isinstance(default_values, dict):
                     value = default_values.copy()
                     for name, val_str in value.items():
