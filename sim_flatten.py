@@ -23,7 +23,7 @@ import re
 import sys
 from argparse import ArgumentParser
 
-from collections import deque
+from collections import deque, defaultdict
 from subprocess import call
 
 from pyparsing import (
@@ -68,7 +68,7 @@ def parse_subckt_def(line: str, line_iter, subckts: dict):
     _, sub_name, *io_and_params = line.split()
     for i, item in enumerate(io_and_params):
         if '=' in item:
-            subckts[sub_name]['local_params'] = dict(EQ.split(param) for param in io_and_params[i:])
+            subckts[sub_name]['default_params'] = dict(EQ.split(param) for param in io_and_params[i:])
             break
         else:
             subckts[sub_name]['io'].append(item)
@@ -129,11 +129,11 @@ def parse_subckt_inst(line: str, subckts: dict, just_model: bool = False):
         without trailing whitespace, as produced by strip_uncomment_upper_join()
         subckts:  dictionary containing parameters of each known subcircuit
     Returns:
-        A 4-tuple in format (label, subc_name, inst_io, local_params) where
+        A 4-tuple in format (label, subc_name, inst_io, kw_params) where
             * label -- the label of the subckt
             * subc_name -- the name of the subckt
             * inst_io -- a tuple of subckt nodes
-            * local_params -- dictionary mapping the parameters to declared
+            * kw_params -- dictionary mapping the parameters to declared
             values. Values are stored as strings to support parameters
 
     Example:
@@ -169,11 +169,11 @@ def parse_subckt_inst(line: str, subckts: dict, just_model: bool = False):
         subc_io = subckts[subc_name]['io']
         n_io = len(subc_io)
         assert(len(inst_io) == n_io)
-        local_params = {}
+        kw_params = {}
         for expr in expressions:
             param, value = EQ.split(expr)
-            local_params[param] = value
-        return label, subc_name, inst_io, local_params
+            kw_params[param] = value
+        return label, subc_name, inst_io, kw_params
 
 def parse_jj(line: str, variables: dict):
     ''' Parse the jj instance declaration line in format
@@ -334,13 +334,13 @@ def parse_source(line: str, variables: dict):
         if success:
             param_str = f"DC {val}"
         else:
-            print(f'Failed to evaluate parameter {item}')
+            print(f'Failed to evaluate parameter {val_str}')
     else:
         success, _, val = parse_expr(param_str, variables)
         if success:
             param_str = f"DC {val}"
         else:
-            print(f'Failed to evaluate parameter {item}')
+            print(f'Failed to evaluate parameter {param_str}')
         # raise ValueError('Unsupported source type')
 
     return _type, label, (n1, n2), param_str
@@ -462,7 +462,7 @@ def parse_initial(file : str):
         params -- dictionary containing the parameters keyed by the subcircuit
         name. Global parameters are placed in params['main']
     '''
-    expressions = {'main': []}
+    expressions = {'main': deque()}
     params = {'main': {}}
     line_iter = strip_uncomment_upper_join(file)
     for line in line_iter:
@@ -494,6 +494,36 @@ def parse_initial(file : str):
                 # Some dependency exists. Parse the string later
                 expr_deque.appendleft(input_string)
     return params
+
+def resolve_params(variables):
+    order = [v for v in _topsort(variables.items()) if v in variables]
+    for var in order:
+        value = variables[var]
+        if isinstance(value, str):
+            success, varname, value = parse_expr(value, variables)
+        variables[var] = value
+    return variables
+
+def _topsort(dependency_pairs):
+    'Sort values subject to dependency constraints'
+    num_heads = defaultdict(int)   # num arrows pointing in
+    tails = defaultdict(list)      # list of arrows going out
+    heads = []                     # unique list of heads in order first seen
+    for h, t in dependency_pairs:
+        num_heads[t] += 1
+        if h in tails:
+            tails[h].append(t)
+        else:
+            tails[h] = [t]
+            heads.append(h)
+
+    ordered = [h for h in heads if h not in num_heads]
+    for h in ordered:
+        for t in tails[h]:
+            num_heads[t] -= 1
+            if not num_heads[t]:
+                ordered.append(t)
+    return ordered
 
 def topsort_subckts(subckts: dict):
     ''' Topological sorting of the subcircuit dependencies.
@@ -543,7 +573,7 @@ def flatten_netlist(file: str, temp_file: str):
     params = parse_initial(file)
 
     subckts = {q:{       'io': [],
-                     'local_params': {},
+                     'default_params': {},
                      'devices' : [],
                      'dependencies': set(),
                  'subckt_inst': [],
@@ -569,8 +599,8 @@ def flatten_netlist(file: str, temp_file: str):
 
     order = topsort_subckts(subckts)
     for subc in order[::-1]: # propagate kw arguments top down
-        variables = params['main'] | params[subc] # | subckts[subc]['local_params']
-        assert(not any((arg in subckts[subc]['local_params']) for arg in params[subc]))
+        variables = params['main'] | params[subc]
+        assert(not any((arg in subckts[subc]['default_params']) for arg in params[subc]))
 
         for line in subckts[subc]['raw_lines']:
             print(line)
@@ -582,9 +612,9 @@ def flatten_netlist(file: str, temp_file: str):
                 subckts[subc]['devices'].append((_type, label, inst_io, '', local_params))
             elif line.startswith('X'):
                 label, subc_name, inst_io, custom_params = parse_subckt_inst(line, subckts)
-                resolved_params = subckts[subc_name]['local_params'] | custom_params
+                resolved_params = subckts[subc_name]['default_params'] | custom_params
                 for param, val_str in resolved_params.items():
-                    success, _, val = parse_expr(val_str, variables)
+                    success, _, val = parse_expr(val_str, variables | params[subc_name])
                     if success:
                         resolved_params[param] = val
                     else:
@@ -598,16 +628,18 @@ def flatten_netlist(file: str, temp_file: str):
                 subckts[subc]['devices'].append((_type, label, inst_io, '', param_str))
 
     for parent in order: # replace subckt definitions bottom up
-        for x_label, child, inst_io, resolved_params in subckts[parent]['subckt_inst']:
-            variables = params['main'] | params[subc] | subckts[subc]['local_params'] | resolved_params
+        for x_label, child, inst_io, custom_params in subckts[parent]['subckt_inst']:
+            variables = resolve_params(subckts[parent]['default_params'] | subckts[child]['default_params'] | params['main'] | params[parent] | params[child] | custom_params)
             model_io = subckts[child]['io']
             io_map = dict(zip(model_io, inst_io)) # map child_io to parent io
             io_map['0'] = '0'
-            for _type, model_label, model_nodes, model, default_values in subckts[child]['devices']:
+            if x_label == 'I_Q3':
+                breakpoint()
+            for _type, model_label, model_nodes, model, default in subckts[child]['devices']:
                 inst_nodes = [io_map.setdefault(n, f'{n}|{x_label}') for n in model_nodes]
                 inst_label = f'{model_label}|{x_label}'
-                if isinstance(default_values, dict):
-                    value = default_values.copy()
+                if isinstance(default, dict):
+                    value = default.copy()
                     for name, val_str in value.items():
                         if not isinstance(val_str, str):
                             continue
@@ -617,14 +649,17 @@ def flatten_netlist(file: str, temp_file: str):
                         else:
                             print(f'Failed to propagate parameter {val_str}')
                             value[name] = val_str
-                elif isinstance(default_values, str):
-                    success, _, val = parse_expr(default_values, variables)
+                elif isinstance(default, str):
+                    success, _, val = parse_expr(default, variables)
                     if success:
                         value = val
                     else:
-                        print(f'Failed to propagate parameter {default_values}')
-                        value = default_values
-
+                        print(f'Failed to propagate parameter {default}')
+                        value = default
+                elif isinstance(default, float) or isinstance(default, int):
+                    value = default
+                else:
+                    raise TypeError(f'Unsupported parameter {default} type ({type(default)})')
                 subckts[parent]['devices'].append((_type, inst_label, inst_nodes, model, value))
 
     write_flat_file(subckts, commands, temp_file, params)
