@@ -1,0 +1,163 @@
+
+.include /Users/brainkz/Documents/GitHub/SFQ_gate_Exploration/jj_library.cir
+.include /Users/brainkz/Documents/GitHub/SFQ/sunmagnetics_library.cir
+
+
+.param tclock=100e-12
+.param global_scale=1.1
+
+.subckt ptl a q
+    X_tx  a       a_ptl LSmitll_PTLTX
+    X_rx  a_ptl   q     LSmitll_PTLRX
+.ends
+
+*  0001
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock   
+    * * factor=global_scale
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.1   Tck=tclock   
+    * * factor=global_scale
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock   
+    * * factor=global_scale
+    * X_merge  a_in    b_in   n1110 LSmitll_MERGE_opt mbias=1 BiasScale=global_scale
+    * * X_not    n1110   clk    n0001 LSMITLL_NOT_opt   BiasScale=global_scale
+    * X_not    n1110   clk    n0001 LSMITLL_NOT_opt   BiasScale=global_scale
+    * xjtl1       n0001       n0001_d   LSMITLL_JTL
+    * Rout    n0001_d   0   1
+* 
+*  1110
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock pulse_w=2e-12
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.1   Tck=tclock pulse_w=2e-12
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock pulse_w=2e-12
+    * X_merge  a_in       b_in   n1110 LSmitll_MERGE_opt mbias=1  BiasScale=global_scale
+    * X_dff    n1110   clk   n1110_dff LSmitll_DFF_opt    BiasScale=global_scale
+    * Rout    n1110_dff   0   1
+* 
+*  0010/0100
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+
+    * X_not    a_in   clk   not_a LSMITLL_NOT_opt     BiasScale=global_scale
+    * X_dff    b_in   clk   dff_b LSmitll_DFF_opt     BiasScale=global_scale
+    * X_merge  not_a  dff_b   n0010 LSmitll_MERGE_opt mbias=0.2   BiasScale=global_scale
+    * Rout    n0010   0   1
+* 
+*  0011/0101
+    * Xa a_in data_sig_a clk_offset=0*tclock do_factor=0.2   Tck=tclock factor=1
+    * Xb a_in data_sig_a clk_offset=2*tclock do_factor=0.2   Tck=tclock factor=-1
+    * Xt clk  clk_sig    clk_offset=tclock    Tck=tclock factor=1
+
+    * xjtl1       a_in       a1   LSMITLL_JTL BiasScale=global_scale
+    * xjtl2       a1       a2   LSMITLL_JTL BiasScale=global_scale
+    * xjtl3       a2       a3   LSMITLL_JTL BiasScale=global_scale
+    * X_not    a3   clk   n0101 LSMITLL_NOT_opt BiasScale=global_scale
+    * xjtl4       n0101       not_a   LSMITLL_JTL BiasScale=global_scale
+    * Rout    not_a   0   1
+* 
+*  1100/1010
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.2   Tck=tclock
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * xjtl1       a_in       a1   LSMITLL_JTL BiasScale=global_scale
+    * xjtl2       a1       a2   LSMITLL_JTL BiasScale=global_scale
+    * xjtl3       a2       a3   LSMITLL_JTL BiasScale=global_scale
+    * X_dff    a3   clk   dff_a LSMITLL_DFF_opt BiasScale=global_scale
+    * Rout    dff_a   0   1
+* 
+*   0111
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * xjtla1       a_in       a1   LSMITLL_JTL BiasScale=global_scale
+    * xjtla2       a1       a2   LSMITLL_JTL BiasScale=global_scale
+    * xjtla3       a2       a3   LSMITLL_JTL BiasScale=global_scale
+    * X_not_a    a3   clk   not_a LSMITLL_NOT_opt BiasScale=global_scale
+    * xjtlb1       b_in       b1   LSMITLL_JTL BiasScale=global_scale
+    * xjtlb2       b1       b2   LSMITLL_JTL BiasScale=global_scale
+    * xjtlb3       b2       b3   LSMITLL_JTL BiasScale=global_scale
+    * X_not_b    b3   clk   not_b LSMITLL_NOT_opt BiasScale=global_scale
+    * X_merge  not_a  not_b   n0111 LSmitll_MERGE_opt mbias=1 BiasScale=global_scale
+    * Rout    n0111   0   1
+* 
+*   1000
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1       Tck=tclock pulse_w=4e-12
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.2       Tck=tclock pulse_w=4e-12
+    * Xt1 clk1  clk_sig    clk_offset=tclock factor=1     Tck=tclock pulse_w=4e-12
+    * Xt2 clk2  clk_sig    clk_offset=tclock factor=1     Tck=tclock pulse_w=4e-12
+    * xjtla1       a_in       a1   LSMITLL_JTL BiasScale=global_scale
+    * xjtla2       a1       a2   LSMITLL_JTL BiasScale=global_scale
+    * xjtla3       a2       a3   LSMITLL_JTL BiasScale=global_scale
+    * xjtlb1       b_in       b1   LSMITLL_JTL BiasScale=global_scale
+    * xjtlb2       b1       b2   LSMITLL_JTL BiasScale=global_scale
+    * xjtlb3       b2       b3   LSMITLL_JTL BiasScale=global_scale
+    * X_dff_a     a3    clk1     a   LSmitll_DFF_opt BiasScale=global_scale
+    * X_dff_b     b3    clk2     b   LSmitll_DFF_opt BiasScale=global_scale
+    * X_merge  a  b   n1000 LSmitll_MERGE_opt mbias=0.2 BiasScale=global_scale
+    * Rout    n1000   0   1
+* 
+*  1011/1101
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * xjtla1       a_in       a1   LSMITLL_JTL BiasScale=global_scale
+    * xjtla2       a1       a2   LSMITLL_JTL BiasScale=global_scale
+    * xjtla3       a2       a3   LSMITLL_JTL BiasScale=global_scale
+    * xjtlb1       b_in       b1   LSMITLL_JTL BiasScale=global_scale
+    * xjtlb2       b1       b2   LSMITLL_JTL BiasScale=global_scale
+    * xjtlb3       b2       b3   LSMITLL_JTL BiasScale=global_scale
+    * X_not    a3   clk   not_a LSMITLL_NOT_opt BiasScale=global_scale
+    * X_dff    b3   clk   dff_b LSmitll_DFF_opt BiasScale=global_scale
+    * X_merge  not_a  dff_b   n1011 LSmitll_MERGE_opt mbias=1 BiasScale=global_scale
+    * Rout    n1011   0   1
+* 
+*  0110
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.15   Tck=tclock
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * xjtla1       a_in       a1   LSMITLL_JTL BiasScale=global_scale
+    * xjtla2       a1       a2   LSMITLL_JTL BiasScale=global_scale
+    * xjtla3       a2       a3   LSMITLL_JTL BiasScale=global_scale
+    * xjtlb1       b_in       b1   LSMITLL_JTL BiasScale=global_scale
+    * xjtlb2       b1       b2   LSMITLL_JTL BiasScale=global_scale
+    * xjtlb3       b2       b3   LSMITLL_JTL BiasScale=global_scale
+    * X_xor    a3   b3   clk   n0110 LSmitll_XOR_opt   BiasScale=global_scale
+    * Rout    n0110   0   1
+* 
+* 1001
+    * Xa a_in_tx data_sig_a clk_offset=0 do_factor=0.2 factor=1  Tck=tclock
+    * Xb b_in_tx data_sig_b clk_offset=0 do_factor=0.3 factor=1  Tck=tclock
+    * Xt1 clk1_tx  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * Xt2 clk2_tx  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * Xt3 clk3_tx  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+
+    * Xa_ptl a_in_tx a_in ptl
+    * Xb_ptl b_in_tx b_in ptl
+    * Xt1_ptl clk1_tx clk1 ptl
+    * Xt2_ptl clk2_tx clk2 ptl
+    * Xt3_ptl clk3_tx clk3 ptl
+
+    Xa a_in data_sig_a clk_offset=0 do_factor=0.2 factor=1  Tck=tclock
+    Xb b_in data_sig_b clk_offset=0 do_factor=0.3 factor=1  Tck=tclock
+    Xt1 clk1  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    Xt2 clk2  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    Xt3 clk3  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+
+
+    X_spl_a     a_in    a_D   a_or  LSmitll_SPLIT_opt   BiasScale=global_scale*0.8
+    X_spl_b     b_in    b_D   b_or  LSmitll_SPLIT_opt   BiasScale=global_scale*0.8
+    
+    * producing 0001
+    X_or    a_or    b_or    a_or_b  LSmitll_MERGE_opt mbias=1.0 BiasScale=global_scale
+    X_not   a_or_b  clk1     n0001   LSMITLL_NOT_opt BiasScale=global_scale
+    * producing 1000
+    X_dff_a a_D     clk2     a_and   LSMITLL_DFF_opt BiasScale=global_scale
+    X_dff_b b_D     clk3     b_and   LSMITLL_DFF_opt BiasScale=global_scale
+    X_and   a_and   b_and   n1000   LSmitll_MERGE_opt mbias=0.2 BiasScale=global_scale
+
+    X_xnor  n0001   n1000   n1001   LSmitll_MERGE_opt mbias=1   BiasScale=global_scale
+    Rout    n1001   0   1
+* 
+.tran 0.5e-12 800e-12
+.end 
+
+.tran 0.5e-12 800e-12
+.end 

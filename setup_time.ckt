@@ -1,0 +1,98 @@
+
+.include /Users/brainkz/Documents/GitHub/SFQ_gate_Exploration/jj_library.cir
+.include /Users/brainkz/Documents/GitHub/SFQ/sunmagnetics_library.cir
+
+.param tclock=42e-12
+.param OS=tclock/40
+
+*  0001
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock   
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.1   Tck=tclock   
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock   
+    * X_merge  a_in    b_in   n1110 LSmitll_MERGE_opt mbias=1
+    * X_not    n1110   clk    n0001 LSMITLL_NOT_opt
+    * Rout    n0001   0   1
+* 
+*  1110
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock pulse_w=2e-12
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.1   Tck=tclock pulse_w=2e-12
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock pulse_w=2e-12
+    * X_merge  a_in       b_in   n1110 LSmitll_MERGE_opt mbias=1
+    * X_dff    n1110   clk   n1110_dff LSmitll_DFF_opt
+    * Rout    n1110_dff   0   1
+* 
+*  0010/0100
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * X_not    a_in   clk   not_a LSMITLL_NOT_opt
+    * X_dff    b_in   clk   dff_b LSmitll_DFF_opt
+    * X_merge  not_a  dff_b   n0010 LSmitll_MERGE_opt mbias=0.2
+    * Rout    n0010   0   1
+* 
+*  0011/0101
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.2   Tck=tclock pulse_w=3e-12
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock pulse_w=3e-12
+    * X_not    a_in   clk   not_a LSMITLL_NOT_opt
+    * Rout    not_a   0   1
+* 
+*  1100/1010
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.2   Tck=tclock pulse_w=3e-12
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock pulse_w=3e-12
+    * X_not    a_in   clk   dff_a LSMITLL_DFF_opt
+    * Rout    dff_a   0   1
+* 
+*   0111
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * X_not_a    a_in   clk   not_a LSMITLL_NOT_opt
+    * X_not_b    b_in   clk   not_b LSMITLL_NOT_opt
+    * X_merge  not_a  not_b   n0111 LSmitll_MERGE_opt mbias=1
+    * Rout    n0111   0   1
+* 
+*   1000
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.1   Tck=tclock
+    * X_merge  a_in  b_in   n1000 LSmitll_MERGE_opt mbias=0.2
+    * Rout    n1000   0   1
+* 
+*  1011/1101
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * X_not    a_in   clk   not_a LSMITLL_NOT_opt
+    * X_dff    b_in   clk   dff_b LSmitll_DFF_opt
+    * X_merge  not_a  dff_b   n1011 LSmitll_MERGE_opt mbias=1
+    * Rout    n1011   0   1
+* 
+*  0110
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.1   Tck=tclock
+    * Xt clk  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * X_xor    a_in   b_in   clk   n0110 LSmitll_XOR_opt
+    * Rout    n0110   0   1
+* 
+* 1001
+    * Xa a_in data_sig_a clk_offset=0 do_factor=0.3   Tck=tclock
+    * Xb b_in data_sig_b clk_offset=0 do_factor=0.3   Tck=tclock
+    * Xt1 clk1  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * Xt2 clk2  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * Xt3 clk3  clk_sig    clk_offset=tclock factor=1   Tck=tclock
+    * X_spl_a     a_in    a_D   a_or  LSmitll_SPLIT_opt
+    * X_spl_b     b_in    b_D   b_or  LSmitll_SPLIT_opt
+    
+    * * producing 0001
+    * X_or    a_or    b_or    a_or_b  LSmitll_MERGE_opt mbias=1.0
+    * X_not   a_or_b  clk1     n0001   LSMITLL_NOT_opt
+    * * producing 1000
+    * X_dff_a a_D     clk2     a_and   LSMITLL_DFF_opt
+    * X_dff_b b_D     clk3     b_and   LSMITLL_DFF_opt
+    * X_and   a_and   b_and   n1000   LSmitll_MERGE_opt mbias=0.2
+
+    * X_xnor  n0001   n1000   n1001   LSmitll_MERGE_opt mbias=1
+    * Rout    n1001   0   1
+* 
+
+.tran 0.5e-12 400e-12
+.end 

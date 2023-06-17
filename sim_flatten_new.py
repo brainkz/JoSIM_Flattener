@@ -23,6 +23,7 @@ import re
 import sys
 from argparse import ArgumentParser
 
+from itertools import chain
 from collections import deque, defaultdict
 from subprocess import call
 from pprint import pprint
@@ -159,8 +160,19 @@ def strip_uncomment_upper_join(file : str):
         line breaks.
     '''
     with open(file, 'r', encoding = 'utf-8') as f:
-
-        for line in f:
+        it = iter(f)
+        lines = []
+        for line in it:
+            line = line.strip().upper()
+            if not line or line.startswith('*'):
+                continue
+            elif line.startswith('+'):
+                lines[-1] += ' ' + line[1:]
+            else:
+                lines.append(line)
+        
+        # breakpoint()
+        for line in lines:
             line = line.strip().upper()
             if line.startswith('*') or not line:
                 continue
@@ -244,9 +256,11 @@ def parse_subckt_inst(line: str, subckts: dict):
             break
 
     # Resolve whether the model name is supplied first or last
-    if (subc_name:= subc_name_and_io[0]) in subckts: #JSIM mode
+    if subc_name_and_io[0] in subckts: #JSIM mode
+        subc_name = subc_name_and_io[0]
         inst_io = subc_name_and_io[1:]
-    elif (subc_name:= subc_name_and_io[-1]) in subckts:
+    elif subc_name_and_io[-1] in subckts:
+        subc_name = subc_name_and_io[-1]
         inst_io = subc_name_and_io[:-1]
     else:
         raise NameError('SUBCKT declaration syntax not recognized')
@@ -272,32 +286,49 @@ def default_kw(line_iter: str = None, params: dict = {}, subckt_name: str = 'mai
     params.setdefault(subckt_name,{'kw': [], 'io': []}).update({'expr_dict':expr_dict})
     return params
 
+
 def get_devices(line_iter: str, params: dict, subckt_name: str = 'main'):
+    
+    def cprint(*args, **kwargs):
+        if subckt_name == 'main':
+            print(*args, **kwargs)
     params[subckt_name]['devices'] = []
     params[subckt_name]['instances'] = []
     if isinstance(line_iter, str):
         line_iter = strip_uncomment_upper_join(line_iter)
+    
     for line in line_iter:
+        cprint(line[0])
         if line.startswith(TWONODE_DEVICES):
             _type, label, io, val_str = parse_twonode(line)
+            cprint(f"TWO_NODE: {line}, {_type, label, io, val_str}")
             params[subckt_name]['devices'].append((_type, label, io, '', val_str))
         elif line.startswith(FOURNODE_DEVICES):
             _type, label, io, expr = parse_fournode(line)
+            cprint(f"FOUR_NODE: {line}, {_type, label, io, expr}")
             params[subckt_name]['devices'].append((_type, label, io, '', expr))
         elif line.startswith('B'):
             label, io, model, expr = parse_jj(line)
+            cprint(f"JJ: {line}, {label, io, model, expr}")
             params[subckt_name]['devices'].append(('B', label, io, model, expr))
         elif line.startswith(SOURCES):
             _type, label, io, expr = parse_source(line)
+            cprint(f"SOURCE: {line}, {_type, label, io, expr}")
             params[subckt_name]['devices'].append((_type, label, io, '', expr))
         elif line.startswith('X'):
             label, inst_subc_name, io, expr = parse_subckt_inst(line, params)
+            cprint(f"SUBCKT: {line}, {label, inst_subc_name, io, expr}")
             params[subckt_name]['instances'].append((label, inst_subc_name, io, expr))
         elif line.startswith('.SUBCKT'):
             _, new_subckt_name, *_ = line.split()
+            cprint(f"SUBCKT DEF: {line}, {new_subckt_name}")
             params = get_devices(line_iter, params, new_subckt_name)
+        # elif subckt_name == 'main':
+        #     print(f'COULD NOT MATCH:\n{line}')
+        #     breakpoint()
         if line.startswith(('.END', '.ENDS')):
             break
+        
     return params
 
 def parse_controls(file):
@@ -334,7 +365,8 @@ def evaluate(expr, known = {}, copy = False):
     else:
         return expr
 
-def write_flat_file(params: dict, commands: list, temp_file: str, global_params: dict):
+def write_flat_file(params: dict, commands: list, temp_file: str, global_params: dict,
+                    measured_devices: int = 999, measured_nodes: int = 999, measured_phases: str = 999):
     ''' Write flattened netlist {flat_file} based on the heirarchical
     information stored in {subckts}. Append {commands} and write {params}.
 
@@ -364,6 +396,19 @@ def write_flat_file(params: dict, commands: list, temp_file: str, global_params:
                 value_str = value
             # print(f'{_type}{label} {" ".join(nodes)} {model} {value_str}')
             fobj.write(f'{_type}{label} {" ".join(nodes)} {model} {value_str}\n')
+        
+        for _type, name, *_ in params['main']['devices']:
+            if name.count('|') <= measured_devices:
+                fobj.write(f'.print DEVI {_type}{name}\n')
+        nodes = set().union(*[q[2] for q in params['main']['devices']])
+        nodes.remove('0')
+        for node in nodes:
+            if node.count('|') <= measured_nodes:
+                fobj.write(f'.print V {node}\n')
+        for _type, name, *_ in params['main']['devices']:
+            if _type == 'B' and name.count('|') <= measured_phases:
+                fobj.write(f'.print DEVP B{name}\n')
+                
 
 def convert_sim(file, temp_file = None, csv_path = None):
     folder, name = os.path.split(file)
@@ -372,7 +417,7 @@ def convert_sim(file, temp_file = None, csv_path = None):
         temp_file = f'{base}_temp{ext}'
     if csv_path is None:
         csv_path = f'{base}.csv'
-        
+
     # initially, just get the parameters
     params = default_kw(file)
     # then save the control statements
@@ -396,6 +441,11 @@ def convert_sim(file, temp_file = None, csv_path = None):
                     necessary_keys = list(expr.keys())
                     expr = evaluate(expr, known, copy=True)
                     expr = {k:v for k,v in expr.items() if k in necessary_keys}
+                elif expr.startswith('PWL'):
+                    # breakpoint()
+                    expr_str = re.search(r'\(.+\)', expr)[0][1:-1] # get what's inside the brackets
+                    expr = ' '.join(evaluate(e, known, copy=True) for e in expr_str.strip().split())
+                    expr = 'PWL(' + expr + ')'
                 else:
                     expr = evaluate(expr, known, copy=True)
                 params['main']['devices'].append((_type, dev_label, dev_io, model, expr))
@@ -410,16 +460,40 @@ def convert_sim(file, temp_file = None, csv_path = None):
     write_flat_file(params, control_lines, temp_file, global_params)
     status = call(['josim-cli', '-o', csv_path, temp_file, '-V', '1'])
     return csv_path
-    
+
 
 if __name__ == '__main__':
-    file = 'async_gate_test.cir'
-    temp_file = 'async_gate_test_temp.cir'
-    csv_path = 'async_gate_test.csv'
+    # file = 'async_gate_test.cir'
+    # file = 'A_and_B_xor_C.cir'
+    # file = 'A_and_B_xor_C_and_D.cir'
+    # file = 'two_gates_seq.cir'
+    # file = 'cb_spurious.cir'
+    # file = 'desync.cir'
+    # file = 'NIMPLY.cir'
+    # file = 'desync_2.cir'
+    # file = 'bka_1.cir'
+    # file = 'bka_2.cir'
+    # file = 'bka_3.cir'
+    # file = 'bka_component_test.ckt'
+    # file = 'Margins_0001.ckt'
+    # file = 'bka_3_ptl_testvectors_2.cir'
+    # file = 'bka_3_ptl_MITLL_cells.cir'
+    # file = 'bka_8bit.cir'
+    # file = 'TFF.cir'
+    file = 'tff_fa.cir'
+    # file = 'pulse_code.cir'
+    
+    lvl = 1
+    
+    base, ext = os.path.splitext(file)
+    temp_file = f'{base}_temp{ext}'
+    csv_path = f'{base}.csv'
 
+    print('PARAMETERS')
     line_iter = strip_uncomment_upper_join(file)
     params = default_kw(line_iter)
     control_lines = parse_controls(file)
+    print('DEVICES')
     line_iter = strip_uncomment_upper_join(file)
     params = get_devices(line_iter, params)
     global_params = evaluate(params['main']['expr_dict'], {})
@@ -438,6 +512,9 @@ if __name__ == '__main__':
                     necessary_keys = list(expr.keys())
                     expr = evaluate(expr, known, copy=True)
                     expr = {k:v for k,v in expr.items() if k in necessary_keys}
+                elif expr.startswith('PWL'):
+                    expr_str = re.search(r'\(.+\)', expr)[0][1:-1] # get what's inside the brackets
+                    expr = 'PWL(' + ' '.join(f'{evaluate(e, known, copy=True):g}' for e in expr_str.strip().split()) + ')'
                 else:
                     expr = evaluate(expr, known, copy=True)
                 params['main']['devices'].append((_type, dev_label, dev_io, model, expr))
@@ -449,8 +526,9 @@ if __name__ == '__main__':
                 # break
         params['main']['instances'] = new_instances
 
-    write_flat_file(params, control_lines, temp_file, global_params)
+    write_flat_file(params, control_lines, temp_file, global_params, lvl, lvl, lvl+2)
     status = call(['josim-cli', '-o', csv_path, temp_file, '-V', '1'])
+    # status = call(['josim-cli', '-o', csv_path, temp_file, '-V', '1'])
 
             # inst_expr = inst_expr.extend(params[inst_subc_name]['expr_deque'])
             # inst_expr = inst_expr.extend(params[inst_subc_name]['kw'])
