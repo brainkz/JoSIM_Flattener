@@ -1,0 +1,38 @@
+
+
+
+
+
+.include /Users/brainkz/Documents/GitHub/SFQ_gate_Exploration/jj_library.cir
+.include /Users/brainkz/Documents/GitHub/SFQ/sunmagnetics_library.cir
+* .include /Users/brainkz/Documents/GitHub/SFQ_gate_Exploration/pulses.cir
+
+
+.param offset1=0
+.param tclock=5e-11
+
+Xdata       a  pulse_code_128    clk_offset=offset1 factor=1   Tck=tclock
++ code002=1
++ code003=1
++ code005=1
++ code007=1
++ code011=1
++ code013=1
++ code017=1
++ code019=1
++ code023=1
++ code029=1
+
+L1      a   q   0.2e-12
+ROUT    q   0   1  
+
+
+Xclock       clk  clk_sig    clk_offset=offset1 factor=1   Tck=tclock
+
+Lclk      clk   clk_out   0.2e-12
+Xjj a q clk_out merge BiasScale=2
+ROUT_clk  clk_out   0   1  
+
+.tran 0.1e-12 20e-09
+
+.end

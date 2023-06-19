@@ -1,0 +1,170 @@
+
+
+
+*
+
+.include /Users/brainkz/Documents/GitHub/SFQ_gate_Exploration/jj_library.cir
+.include /Users/brainkz/Documents/GitHub/SFQ/sunmagnetics_library.cir
+
+.param Jcrit=0.1m/2
+.model jjmit_adj jj(rtype=1, vg=2.8mV, cap=0.07pF, r0=160, rn=16, icrit=0.1mA)
+
+* jjmit_adj:
+* .model jjmod jj(Rtype=1, Vg=2.8mV, Cap=0.06pF, R0=100ohm, Rn=17ohm, Icrit=0.1mA, Phi=pi)
+.subckt tff_fa_2 a clk sum carry cbar
+* 
+  * Topology is based on SUNYSB library
+  .param ICrit_1=0.25e-3
+  .param ICrit_2=0.25e-3
+  .param ICrit_3=0.25e-3
+  .param ICrit_4=0.125e-3
+  .param ICrit_5=0.125e-3
+  .param ICrit_6=0.19e-3
+  .param ICrit_7=0.15e-3
+  .param ICrit_8=0.22e-3
+  .param ICrit_9=0.125e-3
+  .param bias_I1=0.19e-3
+  .param bias_I2=0.19e-3
+  .param ind_L1=5.26e-12
+  .param ind_L2=1.3e-12
+  .param ind_L3=5.26e-12
+  .param ind_L4=5.26e-12
+  * Possible correction:
+  * .param ind_L6=5.26e-12
+  * .param ind_L7=2.63e-12
+  * .param ind_L8=3.9e-12
+
+  * * Original:
+  .param ind_L5=5.26e-12
+  .param ind_L6=2.63e-12
+  .param ind_L7=3.9e-12
+  .param ind_L8=5.26e-12
+
+  L6 a 1 ind_L6
+  * critical currents 7-8-9 are used for 10-11-12  
+  .param ICrit_10=0.15e-3
+  .param ICrit_11=0.22e-3
+  .param ICrit_12=0.125e-3
+  B11 1 2 jjmit_adj area=ICrit_11/Jcrit
+  B10 2 0 jjmit_adj area=ICrit_10/Jcrit*2
+  L8 2 sum ind_L8
+  B12 2 4 jjmit_adj area=ICrit_12/Jcrit
+  * L12 2 4 ind_L8
+  B6  4 6 jjmit_adj area=ICrit_6/Jcrit
+
+  L1  3 4   ind_L1
+  XI1 3 BIAS_exact current=bias_I1
+  L3 3 cbar ind_L3
+  B1  3 0 jjmit_adj area=ICrit_1/Jcrit
+  B2  3 5 jjmit_adj area=ICrit_2/Jcrit
+  B5  5 6 jjmit_adj area=ICrit_5/Jcrit
+  L4  6 carry   ind_L4
+  B4  6 0 jjmit_adj area=ICrit_4/Jcrit
+
+  L2  5 7   ind_L2
+  XI2 7 BIAS_exact current=bias_I2
+  B3  7 0 jjmit_adj area=ICrit_3/Jcrit
+  L7  7 clk   ind_L7
+.ends
+
+
+.param offset1=5e-11
+.param tclock=25e-11
+
+
+.subckt ptl a q
+    X_tx  a       a_ptl LSmitll_PTLTX BiasScale=dcbias
+    X_rx  a_ptl   q     LSmitll_PTLRX BiasScale=dcbias
+.ends
+
+Xdata      a  pulse_code_128    clk_offset=offset1 factor=1   Tck=tclock/4
+  + code006=0 code007=0 code008=1
+  + code010=0 code011=1 code012=0
+  + code014=1 code015=0 code016=0 
+  + code018=0 code019=1 code020=1
+  + code022=1 code023=0 code024=1
+  + code026=1 code027=1 code028=0 
+  + code030=1 code031=1 code032=1
+  + code034=0 code035=1 code036=0 
+  + code038=0 code039=1 code040=0 
+
+Xt1      clk0  clk_sig    clk_offset=offset1 factor=1    Tck=tclock
+LDRO   clk0 clk1 Phi0/(4*IC*Ic0)
+Xt_ptl clk1       clk   LSMITLL_BUFF
+* ptl
+* LDRO2   clk2 clk Phi0/(4*IC*Ic0)
+
+* Xt1      clk0  pulse_code_128    clk_offset=offset1 factor=0.39    Tck=tclock code001=1 code002=1 code003=1 code004=1 code005=1 code006=1 code007=1 code008=1 code009=1 code010=1 code011=1 code012=1 code013=1 code014=1 code015=1
+
+* Xinput   clk1 clk2  LSMITLL_JTL
+* Linput2  clk2 clk  Phi0/(4*IC*Ic0)/100
+
+
+X_tff clk a sum0 carry0 cbar tff_fa_2
+* 
+
+Lsum sum0 sum1 Phi0/(4*IC*Ic0) 
+Xsum sum1 sum  LSMITLL_BUFF
+Rsum sum  0    1  
+
+Lcarry carry0 carry1 Phi0/(4*IC*Ic0) 
+Xq carry1 carry  LSMITLL_BUFF
+Rcarry carry  0      1   
+Rcbar cbar  0      1   
+
+.tran 1.25e-12 2.6e-9
+
+.end
+
+
+* Working T1 flip flop (full adder)
+* .subckt tff_fa_2 a clk sum carry cbar
+*   * Topology is based on SUNYSB library
+*   .param ICrit_1=0.25e-3
+*   .param ICrit_2=0.25e-3
+*   .param ICrit_3=0.25e-3
+*   .param ICrit_4=0.125e-3
+*   .param ICrit_5=0.125e-3
+*   .param ICrit_6=0.19e-3
+*   .param ICrit_7=0.15e-3
+*   .param ICrit_8=0.22e-3
+*   .param ICrit_9=0.125e-3
+*   .param bias_I1=0.19e-3
+*   .param bias_I2=0.19e-3
+*   .param ind_L1=5.26e-12
+*   .param ind_L2=1.3e-12
+*   .param ind_L3=5.26e-12
+*   .param ind_L4=5.26e-12
+*   * Possible correction:
+*   * .param ind_L6=5.26e-12
+*   * .param ind_L7=2.63e-12
+*   * .param ind_L8=3.9e-12
+
+*   * * Original:
+*   .param ind_L5=5.26e-12
+*   .param ind_L6=2.63e-12
+*   .param ind_L7=3.9e-12
+*   .param ind_L8=5.26e-12
+
+*   L6 a 1 ind_L6
+*   B11 1 2 jjmit_adj area=ICrit_11/Jcrit
+*   B10 2 0 jjmit_adj area=ICrit_10/Jcrit
+*   L8 2 sum ind_L8
+*   B12 2 4 jjmit_adj area=ICrit_12/Jcrit
+*   * L12 2 4 ind_L8
+*   B6  4 6 jjmit_adj area=ICrit_6/Jcrit
+
+*   L1  3 4   ind_L1
+*   XI1 3 BIAS_exact current=bias_I1
+*   L3 3 cbar ind_L3
+*   B1  3 0 jjmit_adj area=ICrit_1/Jcrit
+*   B2  3 5 jjmit_adj area=ICrit_2/Jcrit
+*   B5  5 6 jjmit_adj area=ICrit_5/Jcrit
+*   L4  6 carry   ind_L4
+*   B4  6 0 jjmit_adj area=ICrit_4/Jcrit
+
+*   L2  5 7   ind_L2
+*   XI2 7 BIAS_exact current=bias_I2
+*   B3  7 0 jjmit_adj area=ICrit_3/Jcrit
+*   L7  7 clk   ind_L7
+* .ends

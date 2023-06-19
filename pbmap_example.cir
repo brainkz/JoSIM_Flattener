@@ -1,0 +1,41 @@
+*
+* .include /Users/brainkz/Documents/GitHub/SFQ_gate_Exploration/jj_library.cir
+* .include /Users/brainkz/Documents/GitHub/SFQ/sunmagnetics_library.cir
+
+
+.param offset1=1e-10
+
+.subckt ab_xor_cd a b c d t1 t2 out1 out2
+    x_and_ab a b t1 ab_0 and2_clocked
+    x_and_cd c d t1 cd_0 and2_clocked
+
+    xd1 ab_0 ab_1 LSMITLL_BUFF
+    xd2 cd_0 cd_1 LSMITLL_BUFF
+    xd3 ab_1 ab   LSMITLL_JTL
+    xd4 cd_1 cd   LSMITLL_JTL
+
+    x_ab_spl ab abx abn LSmitll_SPLIT
+
+    x_xor abx cd t2 abxcd  xor
+    x_not abn    t2 not_ab LSMITLL_NOT
+    xjtlout1  abxcd  out1 jtl
+    xjtlout2  not_ab out2 jtl
+.ends
+
+Xt1       t1  clk_signal    clk_offset=offset1 factor=2
+Xt2       t2  clk_signal    clk_offset=0       factor=2
+
+Xdata_a1  a1  data_signal_a clk_offset=offset1
+Xdata_b1  b1  data_signal_b clk_offset=offset1
+Xdata_c1  c1  data_signal_c clk_offset=offset1
+Xdata_d1  d1  data_signal_d clk_offset=offset1
+
+
+x1 a1 b1 c1 d1 t1 t2 ab_xor_cd_1 not_ab_1 ab_xor_cd 
+
+ROUT1 ab_xor_cd_1  0  1  
+ROUT2 not_ab_1  0  1  
+
+.tran 0.5e-12 12e-09
+
+.end

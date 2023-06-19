@@ -1,0 +1,38 @@
+*
+.include /Users/brainkz/Documents/GitHub/SFQ_gate_Exploration/jj_library.cir
+.include /Users/brainkz/Documents/GitHub/SFQ/sunmagnetics_library.cir
+
+.param offset1=1e-10
+* .param offset2=1e-10
+
+
+
+* Xt1       clk1  clk_signal    clk_offset=offset1 factor=1
+* Xt2       clk2  clk_signal    clk_offset=offset2 factor=1
+
+Xdata_a1  a  data_signal_a Tck=5e-11 clk_offset=offset1 do_factor=0.1
+Xdata_b1  b  data_signal_b Tck=5e-11 clk_offset=offset1 do_factor=0.1
+
+X_JTL1 b 1 jtl 
+X_JTL2 1 2 jtl 
+X_JTL3 2 3 jtl 
+* X_JTL4 3 4 jtl 
+X_JTL5 3 b1 jtl 
+
+X_MERGE a b1 a_and_b merge mbias=0.3
+
+* X_DFF_A a clk1 a1 dff
+* X_DFF_B b clk2 b1 dff
+
+* X_MERGE a1 b1 a_and_b merge mbias=0.3
+
+* Xdata_c1  c  data_signal_c clk_offset=offset1 do_factor=0.7
+
+* X_merge a      b a_or_b    merge mbias=1
+* X_xor a_or_b c clk q xor t_scaling=1 main_scaling=1 bottom_scaling=1
+
+ROUT a_and_b  0  1  
+
+.tran 0.1e-12 4e-10
+
+.end

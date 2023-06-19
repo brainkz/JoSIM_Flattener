@@ -1,0 +1,115 @@
+
+.include /Users/brainkz/Documents/GitHub/SFQ_gate_Exploration/jj_library.cir
+.include /Users/brainkz/Documents/GitHub/SFQ/sunmagnetics_library.cir
+
+
+.subckt	pg_init	a	b	clk	p	g
+    * Need	3	clocks	here
+    X_spl_a	a	a1	a2	splitter
+    X_spl_b	b	b1	b2	splitter
+
+    X_dff_a	a1	clk	a1_sync	dff
+    X_dff_b	b1	clk	b1_sync	dff
+
+    X_xor	a2	b2	clk	p	xor
+    X_and	a1_sync	b1_sync	g	merge	mbias=0.2
+.ends
+
+.subckt	pg_main	p0  g0  p1  g1  clk pout    gout
+    * Need 4 clocks here
+    X_spl_g1	g1	g1_copy_1	g1_copy_2	splitter
+    X_spl_p1	p1	p1_copy_1	p1_copy_2	splitter
+    
+    X_pg	p1_copy_1	g1_copy_1	pg	merge	mbias=1
+    X_gg	g0          g1_copy_2	gg	merge	mbias=1
+
+    X_dff_p0	p0	        clk	p0_sync	dff
+    X_dff_p1	p1_copy_2	clk	p1_sync	dff
+    X_dff_pg    pg          clk pg_sync dff
+    X_dff_gg    gg          clk gg_sync dff
+
+    X_and_g	pg_sync	gg_sync	gout	merge	mbias=0.2
+    X_and_p	p0_sync	p1_sync	pout	merge	mbias=0.2
+.ends
+
+
+.param OS=1e-11
+.param tclock=10e-11
+
+* Xt1 clk clk_sig clk_offset=OS factor=3 Tck=tclock
+
+Xdata_a0  a0  data_sig_a   clk_offset=OS do_factor=0.1 Tck=tclock
+Xdata_b0  b0  data_sig_b   clk_offset=OS do_factor=0.3 Tck=tclock
+Xdata_a1  a1  data_sig_c   clk_offset=OS do_factor=0.5 Tck=tclock
+Xdata_b1  b1  data_sig_d   clk_offset=OS do_factor=0.7 Tck=tclock
+
+* Cycle 1
+Xt1 clk1 clk_sig clk_offset=OS*1 factor=3 Tck=tclock
+X_initial_0 a0  b0  clk1 ip0_0    ig0_0    pg_init
+* Cycle 1
+Xt2 clk2 clk_sig clk_offset=OS*1 factor=3 Tck=tclock
+X_initial_1 a1  b1  clk2 ip1_0    ig1_0    pg_init
+
+X_spl_p0	ip0_0	ip0_0_b	ip0_0_w	splitter
+X_spl_g0	ig0_0	ig0_0_b	ig0_0_w	splitter
+X_spl_p1	ip1_0	ip1_0_b	ip1_0_w	splitter
+X_spl_g1	ig1_0	ig1_0_b	ig1_0_w	splitter
+
+* Cycle 2
+Xt3 clk3 clk_sig clk_offset=OS*0 factor=4 Tck=tclock
+X_pg_01 ip0_0_b  ig0_0_b  ip1_0_b  ig1_0_b  clk3 p1_1    g1_1    pg_main
+
+* Cycle 2
+* Rp0  ip0_0_w   0   1
+Xt4 clk4 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+X_dff_ip0_01 ip0_0_w  clk4 ip0_1    dff
+* Rip0 ip0_1  0   1
+
+* Cycle 3
+Xt5 clk5 clk_sig clk_offset=OS*(-1) factor=1 Tck=tclock
+X_dff_ip0_12 ip0_1    clk5 s0       dff
+Rs0  s0   0   1
+
+* Cycle 2
+* Rg0  ig0_0_w   0   1
+Xt6 clk6 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+X_dff_ig0_01 ig0_0_w  clk6 ig0_1    dff
+* Rig0  ig0_1   0   1
+
+* Cycle 2
+* Rip1  ip1_0_w   0   1
+Xt7 clk7 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+X_dff_ip1_01 ip1_0_w  clk7 ip1_1    dff
+* Rip1  ip1_1   0   1
+
+* Cycle 3
+Xt8 clk8 clk_sig clk_offset=OS*(-1) factor=1 Tck=tclock
+X_xor_s1    ig0_1	ip1_1	clk8	s1	xor
+Rs1  s1   0   1
+
+* Cycle 2
+* Rip1  ig1_0_w   0   1
+Xt9 clk9 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+X_dff_ig1_01 ig1_0_w  clk9 ig1_1    dff
+Rig1  ig1_1   0   1
+
+* Cycle 3
+Xt10 clk10 clk_sig clk_offset=OS*(-1) factor=1 Tck=tclock
+X_dff_s2    g1_1    clk10	s2	dff
+Rs2  s2   0   1
+
+
+* Rp0_w  ip0   0   1
+* Rg0_w  ig0   0   1
+* Rp1_w  ip1   0   1
+* Rg1    ig1   0   1
+
+
+* Rp1  ip1   0   1
+* Rg1  ig1   0   1
+
+Rp1  p1_1   0   1
+Rg1  g1_1   0   1
+
+.tran 0.25e-12 21e-10
+.end

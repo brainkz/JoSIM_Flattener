@@ -1,0 +1,422 @@
+
+.include /Users/brainkz/Documents/GitHub/SFQ_gate_Exploration/jj_library.cir
+.include /Users/brainkz/Documents/GitHub/SFQ/sunmagnetics_library.cir
+
+
+
+.subckt	pg_init	a	b	clk	pout	gout
+  * Need	3	clocks	here
+  X_spl_a	a	a1	a2	spl2 BiasScale=0.9
+  X_spl_b	b	b1	b2	spl2 BiasScale=0.9
+
+  X_dff_a	a1	clk	a1_sync	dff
+  X_dff_b	b1	clk	b1_sync	dff
+  
+  X_xor	a2	b2	clk	pout	xor 
+    *   t_scaling=1 main_scaling=1.1 bottom_scaling=1.1
+  X_and	a1_sync	b1_sync	gout	merge	mbias=0.2
+.ends
+
+.subckt	B_pg	P0  G0  P1  G1  clk pout    gout
+  * Need 4 clocks here
+  X_spl_g1	G1	G1_copy_1	G1_copy_2	spl2 BiasScale=0.9
+  X_spl_p1	P1	P1_copy_1	P1_copy_2	spl2 BiasScale=0.9
+  
+  X_pg	P1_copy_1	G1_copy_1	pg	merge	mbias=1
+  X_gg	G0          G1_copy_2	gg	merge	mbias=1
+
+  X_dff_p0	P0	        clk	P0_sync	dff
+  X_dff_p1	P1_copy_2	clk	P1_sync	dff
+  X_dff_pg    pg          clk pg_sync dff
+  X_dff_gg    gg          clk gg_sync dff
+
+  X_and_g	pg_sync	gg_sync	gout	merge	mbias=0.2
+  X_and_p	P0_sync	P1_sync	pout	merge	mbias=0.2
+.ends
+
+.subckt	W_pg	pin  gin  clk pout    gout
+  * Need 2 clocks here
+  Xp	    pin     clk	    pout	dff
+  Xg	    gin     clk	    gout	dff
+.ends
+
+.subckt	B_g         G0  P1  G1  clk          gout
+  * Need 2 clocks here
+  X_spl_g1	G1	G1_copy_1	G1_copy_2	spl2 BiasScale=0.9
+  
+  X_pg	P1   G1_copy_1	pg	merge	mbias=1
+  X_gg	G0   G1_copy_2	gg	merge	mbias=1
+
+  X_dff_pg    pg          clk pg_sync dff
+  X_dff_gg    gg          clk gg_sync dff
+
+  X_and_g	pg_sync	gg_sync	gout	merge	mbias=0.2
+.ends
+
+.subckt ptl a q
+    X_tx  a       a_ptl LSmitll_PTLTX
+    X_rx  a_ptl   q     LSmitll_PTLRX
+.ends
+.subckt ptl_ext a q
+    X_tx  a          a_ptl        LSmitll_PTLTX
+    X_rx  a_ptl      a_ptl_rx     LSmitll_PTLRX
+    X_jtl a_ptl_rx   q            LSmitll_JTL
+.ends
+.subckt ptl_ext_2 a q
+    X_tx  a       a_ptl  LSmitll_PTLTX
+    X_rx  a_ptl   a1     LSmitll_PTLRX
+    X_jtl1 a1      a2     LSmitll_JTL
+    X_jtl2 a2      q      LSmitll_JTL
+.ends
+
+.subckt ptl_spl2 a qa qb BiasScale=1
+    X_tx  a       a_ptl     LSmitll_PTLTX
+    X_rx  a_ptl   d         LSmitll_PTLRX
+    X_spl d       qa    qb  spl2
+.ends
+
+.subckt ptl_spl3 a qa qb qc BiasScale=1
+    X_tx  a       a_ptl     LSmitll_PTLTX
+    X_rx  a_ptl   d         LSmitll_PTLRX
+    X_spl d       qa   qb   qc  spl3
+.ends
+.subckt ptl_spl4 a qa qb qc qd BiasScale=1
+    X_tx  a       a_ptl     LSmitll_PTLTX
+    X_rx  a_ptl   d         LSmitll_PTLRX
+    X_spl_1 d       q1   q2   spl2
+    X_spl_2 q1      qa   qb   spl2
+    X_spl_3 q2      qc   qd   spl2
+.ends
+
+.param tclock=200e-12
+.param OS=tclock/20
+.param step=0.08
+*  Input signals
+    Xa0 a0_tx data_sig_a clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xa1 a1_tx data_sig_b clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xa2 a2_tx data_sig_c clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xa3 a3_tx data_sig_d clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xa4 a4_tx data_sig_e clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xa5 a5_tx data_sig_f clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xa6 a6_tx data_sig_g clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xa7 a7_tx data_sig_h clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xb0 b0_tx clk_sig    clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xb1 b1_tx clk_sig    clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xb2 b2_tx clk_sig    clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xb3 b3_tx clk_sig    clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xb4 b4_tx clk_sig    clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xb5 b5_tx clk_sig    clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xb6 b6_tx clk_sig    clk_offset=OS*5 do_factor=step*1 Tck=tclock
+    Xb7 b7_tx clk_sig    clk_offset=OS*5 do_factor=step*1 Tck=tclock
+* 
+*  input PTL
+    X_ptl_a0 a0_tx   a0_rx ptl_ext
+    X_ptl_b0 b0_tx   b0_rx ptl_ext
+    X_ptl_a1 a1_tx   a1_rx ptl_ext
+    X_ptl_b1 b1_tx   b1_rx ptl_ext
+    X_ptl_a2 a2_tx   a2_rx ptl_ext
+    X_ptl_b2 b2_tx   b2_rx ptl_ext
+    X_ptl_a3 a3_tx   a3_rx ptl_ext
+    X_ptl_b3 b3_tx   b3_rx ptl_ext
+    X_ptl_a4 a4_tx   a4_rx ptl_ext
+    X_ptl_b4 b4_tx   b4_rx ptl_ext
+    X_ptl_a5 a5_tx   a5_rx ptl_ext
+    X_ptl_b5 b5_tx   b5_rx ptl_ext
+    X_ptl_a6 a6_tx   a6_rx ptl_ext
+    X_ptl_b6 b6_tx   b6_rx ptl_ext
+    X_ptl_a7 a7_tx   a7_rx ptl_ext
+    X_ptl_b7 b7_tx   b7_rx ptl_ext
+* 
+*  Cycle 0 - initial PG
+    xt00 T00 clk_sig clk_offset=OS*4 factor=3 Tck=tclock
+    Xi0 a0_rx b0_rx T00 iP0_0 iG0_0 pg_init
+    
+    Xt01 T01 clk_sig clk_offset=OS*4 factor=3 Tck=tclock
+    Xi1 a1_rx b1_rx T01 iP1_0 iG1_0 pg_init
+    
+    Xt02 T02 clk_sig clk_offset=OS*4 factor=3 Tck=tclock
+    Xi2 a2_rx b2_rx T02 iP2_0 iG2_0 pg_init
+    
+    Xt03 T03 clk_sig clk_offset=OS*4 factor=3 Tck=tclock
+    Xi3 a3_rx b3_rx T03 iP3_0 iG3_0 pg_init
+    
+    Xt04 T04 clk_sig clk_offset=OS*4 factor=3 Tck=tclock
+    Xi4 a4_rx b4_rx T04 iP4_0 iG4_0 pg_init
+
+    Xt05 T05 clk_sig clk_offset=OS*4 factor=3 Tck=tclock
+    Xi5 a5_rx b5_rx T05 iP5_0 iG5_0 pg_init
+
+    Xt06 T06 clk_sig clk_offset=OS*4 factor=3 Tck=tclock
+    Xi6 a6_rx b6_rx T06 iP6_0 iG6_0 pg_init
+
+    Xt07 T07 clk_sig clk_offset=OS*4 factor=3 Tck=tclock
+    Xi7 a7_rx b7_rx T07 iP7_0 iG7_0 pg_init
+* 
+*   output PTL - input SPL 0 
+    X_ptl_iP0_0  iP0_0              iP0_0_to1   s0_0        ptl_spl2
+    X_ptl_iG0_0  iG0_0  iG0_0_to0   iG0_0_to1               ptl_spl2
+    X_ptl_iP1_0  iP1_0              iP1_0_to1   iP1_0_out   ptl_spl2
+    X_ptl_iG1_0  iG1_0              iG1_0_to1               ptl
+    X_ptl_iP2_0  iP2_0  iP2_0_to2   iP2_0_to3               ptl_spl2
+    X_ptl_iG2_0  iG2_0  iG2_0_to2   iG2_0_to3               ptl_spl2
+    X_ptl_iP3_0  iP3_0  iP3_0_to3               iP3_0_out   ptl_spl2
+    X_ptl_iG3_0  iG3_0  iG3_0_to3                           ptl
+    X_ptl_iP4_0  iP4_0  iP4_0_to4   iP4_0_to5               ptl_spl2
+    X_ptl_iG4_0  iG4_0  iG4_0_to4   iG4_0_to5               ptl_spl2
+    X_ptl_iP5_0  iP5_0  iP5_0_to5               iP5_0_out   ptl_spl2
+    X_ptl_iG5_0  iG5_0  iG5_0_to5                           ptl
+    X_ptl_iP6_0  iP6_0  iP6_0_to6   iP6_0_to7               ptl_spl2
+    X_ptl_iG6_0  iG6_0  iG6_0_to6   iG6_0_to7               ptl_spl2
+    X_ptl_iP7_0  iP7_0  iP7_0_to7               iP7_0_out   ptl_spl2
+    X_ptl_iG7_0  iG7_0  iG7_0_to7                           ptl
+* 
+*  Cycle 1 - PG cycle 1
+    xt10 T10 clk_sig clk_offset=OS*3 factor=1 Tck=tclock
+    X_s0_01	s0_0                 	                            T10	s0_1_tx	dff
+
+    xt11 T10 clk_sig clk_offset=OS*3 factor=1 Tck=tclock
+    X_s1_01	iG0_0_to0    iP1_0_out	                            T11	s1_1_tx	xor t_scaling=1 main_scaling=0.75 bottom_scaling=0.75
+
+    xt12 T12 clk_sig clk_offset=OS*3 factor=4 Tck=tclock
+    X_pg1_01    iP0_0_to1   iG0_0_to1   iP1_0_to1   iG1_0_to1   T12 P1_1_tx    G1_1_tx B_pg 
+
+    Xt13 T13 clk_sig clk_offset=OS*3 factor=2 Tck=tclock
+    X_pg2_01    iP2_0_to2    iG2_0_to2                          T13 P2_1_tx    G2_1_tx W_pg
+
+    xt14 T14 clk_sig clk_offset=OS*3 factor=4 Tck=tclock
+    X_pg3_01    iP2_0_to3   iG2_0_to3   iP3_0_to3   iG3_0_to3   T14 P3_1_tx    G3_1_tx B_pg 
+
+    Xt15 T15 clk_sig clk_offset=OS*3 factor=1 Tck=tclock
+    X_ip3_out	iP3_0_out                 	                    T15 iP3_1_out_tx	   dff
+
+    Xt16 T16 clk_sig clk_offset=OS*3 factor=2 Tck=tclock
+    X_pg4_01    iP4_0_to4   iG4_0_to4                           T16 P4_1_tx    G4_1_tx W_pg
+
+    xt17 T17 clk_sig clk_offset=OS*3 factor=4 Tck=tclock
+    X_pg5_01    iP4_0_to5   iG4_0_to5   iP5_0_to5   iG5_0_to5   T17 P5_1_tx    G5_1_tx B_pg 
+
+    Xt18 T18 clk_sig clk_offset=OS*3 factor=1 Tck=tclock
+    X_ip5_out	iP5_0_out                 	                    T18 iP5_1_out_tx	   dff
+
+    Xt19 T19 clk_sig clk_offset=OS*3 factor=2 Tck=tclock
+    X_pg6_01    iP6_0_to6   iG6_0_to6                           T19 P6_1_tx    G6_1_tx W_pg
+
+    xt1a T1a clk_sig clk_offset=OS*3 factor=4 Tck=tclock
+    X_pg7_01    iP6_0_to7   iG6_0_to7   iP7_0_to7   iG7_0_to7   T1a P7_1_tx    G7_1_tx B_pg 
+
+    Xt1b T21 clk_sig clk_offset=OS*3 factor=1 Tck=tclock
+    X_ip7_out	iP7_0_out                 	                    T1b iP7_1_out_tx	   dff
+* 
+*   output PTL 0 - input SPL 1
+    X_ptl_s0_1      s0_1_tx     s0_1                                    ptl
+    X_ptl_s1_1      s1_1_tx     s1_1                                    ptl
+    X_ptl_P1_1      P1_1_tx     P1_1_to2       P1_1_to3                 ptl_spl2
+    X_ptl_G1_1      G1_1_tx     G1_1_to2       G1_1_to3     G1_1_out    ptl_spl3
+    X_ptl_P2_1      P2_1_tx     P2_1_to2                    P2_1_out    ptl_spl2
+    X_ptl_G2_1      G2_1_tx     G2_1_to2                                ptl
+    X_ptl_P3_1      P3_1_tx     P3_1_to3                                ptl
+    X_ptl_G3_1      G3_1_tx     G3_1_to3                                ptl
+    X_ptl_P4_1      P4_1_tx     P4_1_to4                                ptl
+    X_ptl_G4_1      G4_1_tx     G4_1_to4                                ptl
+    X_ptl_P5_1      P5_1_tx     P5_1_to5       P5_1_to7                 ptl_spl2
+    X_ptl_G5_1      G5_1_tx     G5_1_to5       G5_1_to7                 ptl_spl2
+    X_ptl_P6_1      P6_1_tx     P6_1_to6                                ptl
+    X_ptl_G6_1      G6_1_tx     G6_1_to6                                ptl
+    X_ptl_P7_1      P7_1_tx     P7_1_to7                                ptl
+    X_ptl_G7_1      G7_1_tx     G7_1_to7                                ptl
+    X_ptl_iP3_1      iP3_1_out_tx     iP3_1_out                         ptl
+    X_ptl_iP5_1      iP5_1_out_tx     iP5_1_out                         ptl
+    X_ptl_iP7_1      iP7_1_out_tx     iP7_1_out                         ptl
+* 
+*  Cycle 2 - PG cycle 2
+    xt20 T20 clk_sig clk_offset=OS*2 factor=1 Tck=tclock
+    X_s0_12	s0_1                 	                            T20	s0_2_tx	dff
+    xt21 T21 clk_sig clk_offset=OS*2 factor=1 Tck=tclock
+    X_s1_12	s1_1                 	                            T21	s1_2_tx	dff
+    xt22 T22 clk_sig clk_offset=OS*2 factor=1 Tck=tclock
+    X_s2_12	G1_1_out    P2_1_out	                            T22	s2_2_tx	xor t_scaling=1 main_scaling=0.75 bottom_scaling=0.75
+    xt23 T23 clk_sig clk_offset=OS*2 factor=4 Tck=tclock
+    X_pg2_12    P1_1_to2    G1_1_to2    P2_1_to2    G2_1_to2    T23 P2_2_tx    G2_2_tx B_pg 
+    xt24 T24 clk_sig clk_offset=OS*2 factor=4 Tck=tclock
+    X_pg3_12    P1_1_to3    G1_1_to3    P3_1_to3    G3_1_to3    T24 P3_2_tx    G3_2_tx B_pg 
+    Xt25 T25 clk_sig clk_offset=OS*2 factor=2 Tck=tclock
+    X_pg4_12    P4_1_to4    G4_1_to4                            T25 P4_2_tx    G4_2_tx W_pg
+    Xt26 T26 clk_sig clk_offset=OS*2 factor=2 Tck=tclock
+    X_pg5_12    P5_1_to5    G5_1_to5                            T26 P5_2_tx    G5_2_tx W_pg
+    Xt27 T27 clk_sig clk_offset=OS*2 factor=2 Tck=tclock
+    X_pg6_12    P6_1_to6    G6_1_to6                            T27 P6_2_tx    G6_2_tx W_pg
+    xt28 T28 clk_sig clk_offset=OS*2 factor=4 Tck=tclock
+    X_pg7_12    P5_1_to7    G5_1_to7    P7_1_to7    G7_1_to7    T28 P7_2_tx    G7_2_tx B_pg 
+    Xt29 T29 clk_sig clk_offset=OS*2 factor=1 Tck=tclock
+    X_ip3_12	iP3_1_out                 	                    T29 iP3_2_out_tx	   dff
+    Xt2a T2a clk_sig clk_offset=OS*2 factor=1 Tck=tclock
+    X_ip5_12	iP5_1_out                 	                    T2a iP5_2_out_tx	   dff
+    Xt2b T2b clk_sig clk_offset=OS*2 factor=1 Tck=tclock
+    X_ip7_12	iP7_1_out                 	                    T2b iP7_2_out_tx	   dff
+* 
+*   output PTL 2 - input SPL 3
+    X_ptl_s0_2      s0_2_tx     s0_2                                    ptl
+    X_ptl_s1_2      s1_2_tx     s1_2                                    ptl
+    X_ptl_s2_2      s2_2_tx     s2_2                                    ptl
+    X_ptl_G2_2      G2_2_tx                                 G2_2_out    ptl
+    X_ptl_iP3_2     iP3_2_out_tx                            iP3_2_out   ptl
+
+    X_ptl_P3_2      P3_2_tx     P3_2_to4       P3_2_to5     P3_2_to7    ptl_spl3
+    X_ptl_G3_2      G3_2_tx     G3_2_to4       G3_2_to5     G3_2_to7    G3_2_out ptl_spl4
+
+    X_ptl_P4_2      P4_2_tx     P4_2_to4                    P4_2_out    ptl_spl2
+    X_ptl_G4_2      G4_2_tx     G4_2_to4                                ptl
+
+    X_ptl_iP5_2     iP5_2_out_tx                            iP5_2_out   ptl
+
+    X_ptl_P5_2      P5_2_tx     P5_2_to5                                ptl
+    X_ptl_G5_2      G5_2_tx     G5_2_to5                                ptl
+
+    X_ptl_P6_2      P6_2_tx     P6_2_to6                                ptl
+    X_ptl_G6_2      G6_2_tx     G6_2_to6                                ptl
+
+    X_ptl_iP7_2     iP7_2_out_tx                            iP7_2_out   ptl
+
+    X_ptl_P7_2      P7_2_tx     P7_2_to7                                ptl
+    X_ptl_G7_2      G7_2_tx     G7_2_to7                                ptl
+* 
+*  Cycle 3 - PG cycle 3
+    xt30 T30 clk_sig clk_offset=OS*1 factor=1 Tck=tclock
+    X_s0_23	s0_2                 	                            T30	s0_3_tx	dff
+    xt31 T31 clk_sig clk_offset=OS*1 factor=1 Tck=tclock
+    X_s1_23	s1_2                 	                            T31	s1_3_tx	dff
+    xt32 T32 clk_sig clk_offset=OS*1 factor=1 Tck=tclock
+    X_s2_23	s2_2                 	                            T32	s2_3_tx	dff
+
+    xt33 T33 clk_sig clk_offset=OS*1 factor=1 Tck=tclock
+    X_s3_23	G2_2_out    iP3_2_out	                            T33	s3_3_tx	xor t_scaling=1 main_scaling=0.75 bottom_scaling=0.75
+    xt34 T34 clk_sig clk_offset=OS*1 factor=1 Tck=tclock
+    X_s4_23	G3_2_out    P4_2_out	                            T34	s4_3_tx	xor t_scaling=1 main_scaling=0.75 bottom_scaling=0.75
+
+    xt35 T35 clk_sig clk_offset=OS*1 factor=4 Tck=tclock
+    X_pg4_23    P3_2_to4    G3_2_to4    P4_2_to4    G4_2_to4    T35 P4_3_tx    G4_3_tx B_pg 
+
+    Xt36 T36 clk_sig clk_offset=OS*1 factor=1 Tck=tclock
+    X_ip5_23	iP5_2_out                 	                    T36 iP5_3_out_tx	   dff
+
+    xt37 T37 clk_sig clk_offset=OS*1 factor=4 Tck=tclock
+    X_pg5_23    P3_2_to5    G3_2_to5    P5_2_to5    G5_2_to5    T37 P5_3_tx    G5_3_tx B_pg 
+
+    Xt38 T38 clk_sig clk_offset=OS*1 factor=2 Tck=tclock
+    X_pg6_23    P6_2_to6    G6_2_to6                            T38 P6_3_tx    G6_3_tx W_pg
+
+    Xt39 T39 clk_sig clk_offset=OS*1 factor=1 Tck=tclock
+    X_ip7_23	iP7_2_out                 	                    T39 iP7_3_out_tx	   dff
+
+    xt3a T3a clk_sig clk_offset=OS*1 factor=4 Tck=tclock
+    X_pg7_23    P3_2_to7    G3_2_to7    P7_2_to7    G7_2_to7    T3a P7_3_tx    s8_3_tx B_pg 
+* 
+*   output PTL 3 - input SPL 4
+    X_ptl_s0_3      s0_3_tx     s0_3                                    ptl
+    X_ptl_s1_3      s1_3_tx     s1_3                                    ptl
+    X_ptl_s2_3      s2_3_tx     s2_3                                    ptl
+    X_ptl_s3_3      s3_3_tx     s3_3                                    ptl
+    X_ptl_s4_3      s4_3_tx     s4_3                                    ptl
+
+    X_ptl_G4_3      G4_3_tx                                 G4_3_out    ptl
+    X_ptl_iP5_3     iP5_3_out_tx                            iP5_3_out   ptl
+    
+    X_ptl_P5_3      P5_3_tx     P5_3_to6                                ptl
+    X_ptl_G5_3      G5_3_tx     G5_3_to6                    G5_3_out    ptl_spl2
+
+    X_ptl_P6_3      P6_3_tx     P6_3_to6                    P6_3_out    ptl_spl2
+    X_ptl_G6_3      G6_3_tx     G6_3_to6                                ptl
+
+    X_ptl_iP7_3     iP7_3_out_tx                            iP7_3_out   ptl
+    
+    X_ptl_s8_3      s8_3_tx     s8_3                                    ptl
+* 
+
+*  Cycle 4 - PG cycle 4
+    xt40 T40 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+    X_s0_34	s0_3                 	                            T40	s0_4_tx	dff
+    xt41 T41 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+    X_s1_34	s1_3                 	                            T41	s1_4_tx	dff
+    xt42 T42 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+    X_s2_34	s2_3                 	                            T42	s2_4_tx	dff
+    xt43 T43 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+    X_s3_34	s3_3                 	                            T43	s3_4_tx	dff
+    xt44 T44 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+    X_s4_34	s4_3                 	                            T44	s4_4_tx	dff
+
+    xt45 T45 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+    X_s5_34	G4_3_out    iP5_3_out	                            T45	s5_4_tx	xor t_scaling=1 main_scaling=0.75 bottom_scaling=0.75
+    xt46 T46 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+    X_s6_34	G5_3_out     P6_3_out	                            T46	s6_4_tx	xor t_scaling=1 main_scaling=0.75 bottom_scaling=0.75
+
+    xt47 T47 clk_sig clk_offset=OS*0 factor=4 Tck=tclock
+    X_pg6_34    P5_3_to6    G5_3_to6    P6_3_to6    G6_3_to6    T47 P6_4_tx    G6_4_tx B_pg 
+
+    Xt48 T48 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+    X_ip7_34	iP7_3_out                 	                    T48 iP7_4_out_tx	   dff
+
+    xt49 T49 clk_sig clk_offset=OS*0 factor=1 Tck=tclock
+    X_s8_34	s8_3                 	                            T49	s8_4_tx	dff
+* 
+
+*   output PTL 3 - input SPL 4
+    X_ptl_s0_4      s0_4_tx     s0_4                                    ptl
+    X_ptl_s1_4      s1_4_tx     s1_4                                    ptl
+    X_ptl_s2_4      s2_4_tx     s2_4                                    ptl
+    X_ptl_s3_4      s3_4_tx     s3_4                                    ptl
+    X_ptl_s4_4      s4_4_tx     s4_4                                    ptl
+    X_ptl_s5_4      s5_4_tx     s5_4                                    ptl
+    X_ptl_s6_4      s6_4_tx     s6_4                                    ptl
+
+    X_ptl_G6_4      G6_4_tx                                 G6_4_out    ptl
+    X_ptl_iP7_4     iP7_4_out_tx                            iP7_4_out   ptl
+
+    X_ptl_s8_4      s8_4_tx     s8_4                                    ptl
+* 
+*  Cycle 5 - PG cycle 5
+    xt50 T50 clk_sig clk_offset=OS*(-1) factor=1 Tck=tclock
+    X_s0_45	s0_4                 	                            T50	s0_5_tx	dff
+    xt51 T51 clk_sig clk_offset=OS*(-1) factor=1 Tck=tclock
+    X_s1_45	s1_4                 	                            T51	s1_5_tx	dff
+    xt52 T52 clk_sig clk_offset=OS*(-1) factor=1 Tck=tclock
+    X_s2_45	s2_4                 	                            T52	s2_5_tx	dff
+    xt53 T53 clk_sig clk_offset=OS*(-1) factor=1 Tck=tclock
+    X_s3_45	s3_4                 	                            T53	s3_5_tx	dff
+    xt54 T54 clk_sig clk_offset=OS*(-1) factor=1 Tck=tclock
+    X_s4_45	s4_4                 	                            T54	s4_5_tx	dff
+    xt55 T55 clk_sig clk_offset=OS*(-1) factor=1 Tck=tclock
+    X_s5_45	s5_4                 	                            T55	s5_5_tx	dff
+    xt56 T56 clk_sig clk_offset=OS*(-1) factor=1 Tck=tclock
+    X_s6_45	s6_4                 	                            T56	s6_5_tx	dff
+
+    xt57 T57 clk_sig clk_offset=OS*(-1) factor=1 Tck=tclock
+    X_s7_45	G6_4_out     iP7_4_out	                            T57	s7_4_tx	xor t_scaling=1 main_scaling=0.75 bottom_scaling=0.75
+
+    xt58 T58 clk_sig clk_offset=OS*(-1) factor=1 Tck=tclock
+    X_s8_45 s8_4                                                T58 s8_5_tx dff
+* 
+
+*   output PTL 3 - input SPL 4
+    X_ptl_s0_5      s0_5_tx     s0_5                                    ptl
+    X_ptl_s1_5      s1_5_tx     s1_5                                    ptl
+    X_ptl_s2_5      s2_5_tx     s2_5                                    ptl
+    X_ptl_s3_5      s3_5_tx     s3_5                                    ptl
+    X_ptl_s4_5      s4_5_tx     s4_5                                    ptl
+    X_ptl_s5_5      s5_5_tx     s5_5                                    ptl
+    X_ptl_s6_5      s6_5_tx     s6_5                                    ptl
+    X_ptl_s7_5      s7_5_tx     s7_5                                    ptl
+    X_ptl_s8_5      s8_5_tx     s8_5                                    ptl
+* 
+
+R_s0  s0_5  0   1
+R_s1  s1_5  0   1
+R_s2  s2_5  0   1
+R_s3  s3_5  0   1
+R_s4  s4_5  0   1
+R_s5  s5_5  0   1
+R_s6  s6_5  0   1
+R_s7  s7_5  0   1
+R_s8  s8_5  0   1
+
+.tran 0.5e-12 2000e-12
+.end 

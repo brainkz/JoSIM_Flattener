@@ -1,0 +1,76 @@
+
+.include /Users/brainkz/Documents/GitHub/SFQ_gate_Exploration/jj_library.cir
+.include /Users/brainkz/Documents/GitHub/SFQ/sunmagnetics_library.cir
+
+
+.subckt	pg_init	a	b	clk	p	g
+    * Need	3	clocks	here
+    X_spl_a	a	a1	a2	splitter
+    X_spl_b	b	b1	b2	splitter
+
+    X_dff_a	a1	clk	a1_sync	dff
+    X_dff_b	b1	clk	b1_sync	dff
+
+    X_xor	a2	b2	clk	p	xor
+    X_and	a1_sync	b1_sync	g	merge	mbias=0.3
+.ends
+
+.subckt	pg_main	p0  g0  p1  g1  clk pout    gout
+    * Need 4 clocks here
+    X_spl_g1	g1	g1_copy_1	g1_copy_2	splitter
+    X_spl_p1	p1	p1_copy_1	p1_copy_2	splitter
+    
+    X_pg	p1_copy_1	g1_copy_1	pg	merge	mbias=1
+    X_gg	g0          g1_copy_2	gg	merge	mbias=1
+
+    X_dff_p0	p0	        clk	p0_sync	dff
+    X_dff_p1	p1_copy_2	clk	p1_sync	dff
+    X_dff_pg    pg          clk pg_sync dff
+    X_dff_gg    gg          clk gg_sync dff
+
+    X_and_g	pg_sync	gg_sync	gout	merge	mbias=0.3
+    X_and_p	p0_sync	p1_sync	pout	merge	mbias=0.3
+.ends
+
+.param offset1=1e-11
+.param tclock=20e-11
+
+Xt2       clk2  clk_sig    clk_offset=offset1 factor=10    Tck=tclock
+Xt1       clk1  clk_sig    clk_offset=offset1*2 factor=10    Tck=tclock
+Xt0       clk0  clk_sig    clk_offset=offset1*3 factor=10    Tck=tclock
+
+Xdata_a0  a0i  data_sig_a   clk_offset=offset1*3 do_factor=0.1 Tck=tclock
+Xdata_b0  b0i  data_sig_b   clk_offset=offset1*3 do_factor=0.3 Tck=tclock
+Xdata_a1  a1i  data_sig_c   clk_offset=offset1*3 do_factor=0.5 Tck=tclock
+Xdata_b1  b1i  data_sig_d   clk_offset=offset1*3 do_factor=0.7 Tck=tclock
+
+X_init_0 a0i  b0i  clk0 p0_0    g0_0    pg_init
+X_init_1 a1i  b1i  clk0 p1_0    g1_0    pg_init
+
+X_spl_p0_0  p0_0    p0_0_b  p0_0_w splitter
+X_spl_g0_0  g0_0    g0_0_b  g0_0_w splitter
+
+X_spl_p1_0  p1_0    p1_0_b  p1_0_w splitter
+* X_spl_g1_0  g1_0    g1_0_b  g1_0_w
+
+X_pg_01 p0_0_b  g0_0_b  p1_0_b  g1_0    clk1 p1_1    g1_1    pg_main
+
+* X_dff_p0	p0	        clk	p0_sync	dff
+
+X_dff_p0_01 p0_0_w  clk1 p0_1    dff
+X_dff_g0_01 g0_0_w  clk1 g0_1    dff
+X_dff_p1_01 p1_0_w  clk1 p1_1    dff
+* X_dff_g1_01 g1_0_we  clk g1_1
+
+X_dff_s0    p0_1    clk2 s0  dff
+
+X_xor_s1	g0_1	p1_1    clk2 s1  xor
+
+X_dff_s2 g1_1    clk2 s2 dff
+
+Rs0  s0   0   1
+Rs1  s1   0   1
+Rs2  s2   0   1
+
+.tran 2.5e-12 48e-10
+.end
