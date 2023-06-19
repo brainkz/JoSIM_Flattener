@@ -480,7 +480,8 @@ if __name__ == '__main__':
     # file = 'bka_3_ptl_MITLL_cells.cir'
     # file = 'bka_8bit.cir'
     # file = 'TFF.cir'
-    file = 'tff_fa.cir'
+    # file = 'tff_fa.cir'
+    file = 'tff_fa_fix.cir'
     # file = 'pulse_code.cir'
     
     lvl = 1
