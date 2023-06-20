@@ -6,4 +6,8 @@ __pycache__/
 .gitattributes
 .gitignore 
 *.csv
+<<<<<<< HEAD
 *.xlsx
+=======
+*.cir
+>>>>>>> parent of 0e8fda8 (Working T1 flip flop)

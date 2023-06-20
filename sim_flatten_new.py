@@ -487,7 +487,8 @@ if __name__ == '__main__':
     # file = 'tff_fa.cir'
     # file = 'tff_fa_working.cir'
     # file = 'tff_fa_fix.cir'
-    file = 'tff_fa_RSFQlib.cir'
+    # file = 'tff_fa_RSFQlib.cir'
+    file = 'tff_fa_simple.cir'
     # file = 'pulse_code.cir'
     
     lvl = 1
