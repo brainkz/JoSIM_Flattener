@@ -6,37 +6,30 @@
 
 .include /Users/brainkz/Documents/GitHub/SFQ_gate_Exploration/jj_library.cir
 * .include /Users/brainkz/Documents/GitHub/SFQ/sunmagnetics_library.cir
+.include /Users/brainkz/Documents/GitHub/SFQ/thmitll_lib.cir
 
-.param Jcrit=0.1m
-.model jjmit jj(rtype=1, vg=2.8mV, cap=0.07pF, r0=160, rn=16, icrit=0.1mA)
-
-.model jjmitll100 jj(rtype=1, vg=2.8mV, cap=0.07pF, r0=160, rN=16, icrit=0.1mA)  
-
-  .model jmitll jj(rtype=1, vg=2.8mV, cap=0.07pF, r0=160ohm, rN=16ohm, icrit=0.1mA)
-
-* jjmit:
-* .model jjmod jj(Rtype=1, Vg=2.8mV, Cap=0.06pF, R0=100ohm, Rn=17ohm, Icrit=0.1mA, Phi=pi)
 .subckt tff_fa_2 readout_rx toggle_rx sum carry cbar
 * 
-  X_readout  PTLRX  readout_rx  readout BiasScale=1.3
-  X_toggle  PTLRX  toggle_rx  toggle BiasScale=1
+  X_readout  PTLRX  readout_rx  readout
+  X_toggle  PTLRX  toggle_rx  toggle
   X_sum  PTLTX  sum_tx  sum
   X_carry  PTLTX  carry_tx  carry
   X_cbar  PTLTX  cbar_tx  cbar
+
   * Topology is based on SUNYSB library
   .param ICrit_1=0.25e-3
   .param ICrit_2=0.25e-3
-  .param ICrit_3=0.25e-3*1.1
+  .param ICrit_3=0.25e-3
   .param ICrit_4=0.125e-3
   .param ICrit_5=0.125e-3
   .param ICrit_6=0.19e-3
   .param ICrit_7=0.15e-3
   .param ICrit_8=0.22e-3
   .param ICrit_9=0.125e-3
-  .param bias_I1=0.19e-3*1.2
-  .param bias_I2=0.19e-3*0.7
-  .param ind_L1=5.26e-12*4
-  .param ind_L2=1.3e-12*2
+  .param bias_I1=0.19e-3
+  .param bias_I2=0.19e-3
+  .param ind_L1=5.26e-12
+  .param ind_L2=1.3e-12
   .param ind_L3=5.26e-12
   .param ind_L4=5.26e-12
   * Possible correction:
@@ -80,76 +73,13 @@
 .param offset1=5e-11
 .param tclock=250e-12
 .param do=tclock/4
-
-.SUBCKT PTLRX 2 6 BiasScale=1
-  *==============  Begin SPICE netlist of main design ============
-  B01        1          9          jmitll     area=1
-  B02        4          8          jmitll     area=1
-  B03        5          7          jmitll     area=1
-  IB01       0          10         pwl(0      0 5p 155u*BiasScale)
-  L01        2          1          0.2p      
-  L02        1          3          4.3p      
-  L03        3          4          4.6p      
-  L04        4          5          5.0p      
-  L05        5          6          2.3p      
-  LP01       0          9          0.34p     
-  LP02       0          8          0.06p     
-  LP03       0          7          0.03p     
-  LPR01      3          10         0.2p      
-  LRB01      9          11         0.5p      
-  LRB02      8          12         1p        
-  LRB03      7          13         1p        
-  RB01       11         1          9.7       
-  RB02       12         4          9.7       
-  RB03       13         5          9.7     
-.ends PTLRX
-
-.SUBCKT PTLTX 1 2 BiasScale=1
-  *==============  Begin SPICE netlist of main design ============
-  B01        3          7          jmitll     area=2
-  B02        4          6          jmitll     area=1.62
-  IB01       0          10         pwl(0      0 5p 230u*BiasScale)
-  IB02       0          11         pwl(0      0 5p 82u*BiasScale)
-  L01        1          3          2.5p      
-  L02        3          4          3.3p   
-  L03        4          5          0.35p     
-  LP01       0          7          0.05p   
-  LP02       0          6          0.12p     
-  LPR01      3          10         0.2p      
-  LPR02      4          11         1.3p      
-  LRB01      7          8          1p        
-  LRB02      6          9          1p        
-  RB01       8          3          4.85     
-  RB02       9          4          6.3       
-  RINS       5          2          1.36      
-  .model jmitll jj(rtype=1, vg=2.8mV, cap=0.07pF, r0=160ohm, rN=16ohm, icrit=0.1mA)
-.ends PTLTX
-
-.SUBCKT JTLTOUT 2 50 
-  *==============  Begin SPICE netlist of main design ============
-  B1         1          6          jjmitll100 area=2.5
-  B2         4          8          jjmitll100 area=2.5
-  IB1        0          3          pwl(0      0 5p 350u)
-  L1         2          1          2p        
-  L2         1          3          2p        
-  L3         3          4          2p        
-  L4         4          5          2p        
-  LB1        7          6          1p        
-  LB2        9          8          1p        
-  Lp1        6          0          0.2p      
-  Lp2        8          0          0.2p      
-  RB1        1          7          3.88      
-  RB2        4          9          3.88      
-  XPOUT      5          50         PTLTX
-.ends JTLTOUT
-
-.param zed0=2.5
-.param Imax=500u
+.param zed0=5
+.param Imax=600u
 .param tr=9.5e-12
 .param tf=9.5e-12
 .param pw=1.0e-12
 
-Iclk 0 clk_dc pulse(0 imax offset1 tr tf pw tclock)
+Iclk 0 clk_dc pulse(0 imax offset1               tr tf pw   tclock)
 Ia1_1 0 a1_dc pulse(0 imax offset1+1*do+1*tclock tr tf pw 8*tclock)
 Ia1_2 0 a1_dc pulse(0 imax offset1+1*do+3*tclock tr tf pw 8*tclock)
 Ia1_3 0 a1_dc pulse(0 imax offset1+1*do+5*tclock tr tf pw 8*tclock)
@@ -164,32 +94,28 @@ Ia3_3 0 a1_dc pulse(0 imax offset1+3*do+6*tclock tr tf pw 8*tclock)
 Ia3_4 0 a1_dc pulse(0 imax offset1+3*do+7*tclock tr tf pw 8*tclock)
 * Ia   0 clk_dc pulse(0 imax 50p 10p 10p 0p 250p)
 
-XDCSFQclk  clk_dc clk0  LSMITLL_DCSFQ
-XJTLclk    clk0       clk_rx      JTLTOUT
-Tclk  clk_rx 0 clk 0 LOSSLESS Z0=zed0 TD=10p
-XDCSFQ_1  a1_dc a1    LSMITLL_DCSFQ
-XJTL_1    a1         a_rx        JTLTOUT 
-Ta  a_rx 0 a 0 LOSSLESS Z0=zed0 TD=10p
-* XDCSFQ_2  a2_dc a2    LSMITLL_DCSFQ
-* XJTL_2    a2         a        JTL
-* XDCSFQ_3  a3_dc a3    LSMITLL_DCSFQ
-* XJTL_3    a3         a        JTL
+XDCSFQclk  clk_dc clk_tx  DCSFQ_PTLTX
+Tclk  clk_tx  0 clk 0 LOSSLESS Z0=zed0 TD=1p
+XDCSFQ_1    a1_dc a_tx    DCSFQ_PTLTX
+Ta    a_tx    0 a   0 LOSSLESS Z0=zed0 TD=1p
 
 * Rclk clk  0    1  
 * Ra a  0    1  
 
-* .tran 1.25e-12 2.6e-9
-* .end
-
-X_tff clk a sum carry cbar tff_fa_2
+X_tff clk a sum_tx carry_tx cbar_tx tff_fa_2
 
 * Lsum sum0 sum1 Phi0/(4*IC*Ic0) 
 * Xsum sum0 sum  LSMITLL_BUFF
+Tsum sum_tx  0 sum  0  LOSSLESS Z0=zed0 TD=1p
 Rsum sum  0    1
 
 * Lcarry carry0 carry1 Phi0/(4*IC*Ic0) 
 * Xq carry0 carry  LSMITLL_BUFF
+
+Tcarry carry_tx  0 carry  0  LOSSLESS Z0=zed0 TD=1p
 Rcarry carry  0      1
+
+Tcbar cbar_tx  0 cbar  0  LOSSLESS Z0=zed0 TD=1p
 Rcbar cbar  0      1
 
 .tran 0.25e-12 2.6e-9

@@ -1,0 +1,3222 @@
+.model	jjmit	jj(rtype=1, vg=2.8mV, cap=0.07pF, r0=160, rn=16, icrit=0.1mA)
+
+.param	Phi0=2.067833848E-15
+.param	B0=1
+.param	Ic0=0.0001
+.param	IcRs=100u*6.859904418
+.param	B0Rs=IcRs/Ic0*B0
+.param	Rsheet=2	
+.param	Lsheet=1.13e-12
+.param	LP=0.5p
+.param	IC=2.5
+.param	ICreceive=1.6
+.param	ICtrans=2.5
+.param	LB=2p
+.param	BiasCoef=0.7
+.param	Lptl=2p
+.param	RD=1.36
+
+.subckt	DFFT	a	clk	q
+
+  .param	B1=ICreceive
+  .param	B2=IC/1.25
+  .param	B3=IC/1.4
+  .param	B4=IC
+  .param	B5=ICreceive
+  .param	B6=IC/1.25
+  .param	B7=IC/1.4
+  .param	B8=IC
+  .param	B9=ICtrans
+  .param	IB1=BiasCoef*(B1*Ic0+B2*Ic0)
+  .param	IB2=IC*Ic0
+  .param	IB3=BiasCoef*(B5*Ic0+B6*Ic0)
+  .param	IB4=BiasCoef*B9*Ic0
+  .param	L1=Lptl
+  .param	L2=(Phi0/(2*B1*Ic0))*(B1/(B1+B2))
+  .param	L3=(Phi0/(2*B1*Ic0))*(B2/(B1+B2))
+  .param	L4=Phi0/(2*B2*Ic0)
+  .param	L5=Phi0/(B4*Ic0)
+  .param	L6=Lptl
+  .param	L7=(Phi0/(2*B6*Ic0))*(B6/(B6+B7))
+  .param	L8=(Phi0/(2*B6*Ic0))*(B7/(B6+B7))
+  .param	L9=Phi0/(2*B6*Ic0)
+  .param	L10=Phi0/(2*B8*Ic0)
+  .param	L11=Lptl
+  .param	RB1=B0Rs/B1	  
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	RB9=B0Rs/B9
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet
+  .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP	
+  .param	LRB6=(RB6/Rsheet)*Lsheet+LP
+  .param	LRB7=(RB7/Rsheet)*Lsheet	
+  .param	LRB8=(RB8/Rsheet)*Lsheet+LP
+  .param	LRB9=(RB9/Rsheet)*Lsheet+LP
+  B1	1	2	jjmit	 area=B1	
+  B2	5	6	jjmit	 area=B2	
+  B3	7	8	jjmit	 area=B3	
+  B4	8	9	jjmit	 area=B4	
+  B5	12	13	jjmit	 area=B5	
+  B6	16	17	jjmit	 area=B6	
+  B7	18	11	jjmit	 area=B7	
+  B8	11	19	jjmit	 area=B8	
+  B9	20	21	jjmit	 area=B9
+  
+  IB1	0	4	IB1
+  IB2	0	10	IB2
+  IB3	0	15	IB3
+  IB4	0	22	IB4
+  LB1	4	3	LB
+  LB2	10	8	LB
+  LB3	15	14	LB
+  LB4	22	20	LB
+  L1	a	1	L1	
+  L2	1	3	L2	
+  L3	3	5	L3	
+  L4	5	7	L4	
+  L5	8	11	L5	
+  L6	clk	12	L6	
+  L7	12	14	L7	
+  L8	14	16	L8	
+  L9	16	18	L9	
+  L10	11	20	L10	
+  L11	20	23	L11	
+  RD	23	q	RD	 
+  LP1	2	0	LP
+  LP2	6	0	LP
+  LP4	9	0	LP
+  LP5	13	0	LP
+  LP6	17	0	LP
+  LP8	19	0	LP
+  LP9	21	0	LP
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	5	105	RB2	 
+  LRB2	105	0	LRB2	
+  RB3	7	107	RB3	 
+  LRB3	107	8	LRB3	
+  RB4	8	108	RB4	 
+  LRB4	108	0	LRB4	
+  RB5	12	112	RB5	 
+  LRB5	112	0	LRB5	
+  RB6	16	116	RB6	 
+  LRB6	116	0	LRB6	
+  RB7	18	118	RB7	 
+  LRB7	118	11	LRB7	
+  RB8	11	111	RB8	 
+  LRB8	111	0	LRB8	
+  RB9	20	120	RB9	 
+  LRB9	120	0	LRB9	
+.ends
+
+.subckt	AND2T	a	b	clk	q
+  .param	B1=ICreceive
+  .param	B2=IC/1.25
+  .param	B3=IC/1.4
+  .param	B4=IC
+  .param	B5=IC
+  .param	B6=IC/1.4
+  .param	B7=IC/3
+  .param	B8=B1
+  .param	B9=B2
+  .param	B10=B3
+  .param	B11=B4
+  .param	B12=B5
+  .param	B13=B6
+  .param	B14=B7
+  .param	B15=ICreceive
+  .param	B16=IC/1.25
+  .param	B17=ICtrans
+  .param	IB1=BiasCoef*Ic0*(B1+B2)
+  .param	IB2=BiasCoef*Ic0*B4
+  .param	IB3=IB1
+  .param	IB4=IB2
+  .param	IB5=BiasCoef*Ic0*B15
+  .param	IB6=Ic0*IC
+  .param	IB7=BiasCoef*Ic0*B17
+  .param	L1=Lptl
+  .param	L2=(Phi0/(2*B1*Ic0))*(B1/(B1+B2))
+  .param	L3=(Phi0/(2*B1*Ic0))*(B2/(B1+B2))
+  .param	L4=Phi0/(2*B2*Ic0)
+  .param	L5=Phi0/(B4*Ic0)
+  .param	L6=1p
+  .param	L7=Phi0/(2*B5*Ic0)
+  .param	L8=Lptl
+  .param	L9=L2
+  .param	L10=L3
+  .param	L11=L4
+  .param	L12=L5
+  .param	L13=L6
+  .param	L14=L7
+  .param	L15=Lptl
+  .param	L16=Phi0/(2*B15*Ic0)
+  .param	L17=1p
+  .param	L18=1p
+  .param	L19=Lptl
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	RB9=B0Rs/B9
+  .param	RB10=B0Rs/B10
+  .param	RB11=B0Rs/B11
+  .param	RB12=B0Rs/B12
+  .param	RB13=B0Rs/B13
+  .param	RB14=B0Rs/B14
+  .param	RB15=B0Rs/B15
+  .param	RB16=B0Rs/B16
+  .param	RB17=B0Rs/B17
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet
+  .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP
+  .param	LRB6=(RB6/Rsheet)*Lsheet
+  .param	LRB7=(RB7/Rsheet)*Lsheet
+  .param	LRB8=(RB8/Rsheet)*Lsheet+LP
+  .param	LRB9=(RB9/Rsheet)*Lsheet+LP
+  .param	LRB10=(RB10/Rsheet)*Lsheet
+  .param	LRB11=(RB11/Rsheet)*Lsheet+LP
+  .param	LRB12=(RB12/Rsheet)*Lsheet+LP
+  .param	LRB13=(RB13/Rsheet)*Lsheet
+  .param	LRB14=(RB14/Rsheet)*Lsheet
+  .param	LRB15=(RB15/Rsheet)*Lsheet+LP
+  .param	LRB16=(RB16/Rsheet)*Lsheet+LP
+  .param	LRB17=(RB17/Rsheet)*Lsheet+LP
+  B1	1	2	jjmit	 area=B1	
+  B2	5	6	jjmit	 area=B2	
+  B3	7	8	jjmit	 area=B3	
+  B4	8	9	jjmit	 area=B4	
+  B5	11	12	jjmit	 area=B5	
+  B6	11	13	jjmit	 area=B6	
+  B7	15	16	jjmit	 area=B7	
+  B8	17	18	jjmit	 area=B8	
+  B9	21	22	jjmit	 area=B9	
+  B10	23	24	jjmit	 area=B10	
+  B11	24	25	jjmit	 area=B11	
+  B12	27	28	jjmit	 area=B12	
+  B13	27	29	jjmit	 area=B13	
+  B14	30	16	jjmit	 area=B14	
+  B15	31	32	jjmit	 area=B15	
+  B16	34	35	jjmit	 area=B16	
+  B17	37	38	jjmit	 area=B17	
+  IB1	0	4	IB1
+  IB2	0	10	IB2
+  IB3	0	20	IB3
+  IB4	0	26	IB4
+  IB5	0	33	IB5
+  IB6	0	36	IB6
+  IB7	0	39	IB7
+  LB1	4	3	LB
+  LB2	10	8	LB
+  LB3	20	19	LB
+  LB4	26	24	LB
+  LB5	33	31	LB
+  LB6	36	34	LB
+  LB7	39	37	LB
+  L1	a	1	L1	
+  L2	1	3	L2	
+  L3	3	5	L3	
+  L4	5	7	L4	
+  L5	8	11	L5	
+  L6	13	14	L6	
+  L7	11	15	L7	
+  L8	b	17	L8	
+  L9	17	19	L9	
+  L10	19	21	L10	
+  L11	21	23	L11	
+  L12	24	27	L12	
+  L13	14	29	L13	
+  L14	27	30	L14	
+  L15	clk	31	L15	
+  L16	31	34	L16	
+  L17	34	14	L17	
+  L18	16	37	L18	
+  L19	37	40	L19	
+  RD	40	q	RD	 
+  LP1	2	0	LP
+  LP2	6	0	LP
+  LP4	9	0	LP
+  LP5	0	12	LP
+  LP8	18	0	LP
+  LP9	22	0	LP
+  LP11	25	0	LP
+  LP12	28	0	LP
+  LP15	32	0	LP
+  LP16	35	0	LP
+  LP17	38	0	LP
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	5	105	RB2	 
+  LRB2	105	0	LRB2	
+  RB3	7	107	RB3	 
+  LRB3	107	8	LRB3	
+  RB4	8	108	RB4	 
+  LRB4	108	0	LRB4	
+  RB5	111	11	RB5	 
+  LRB5	0	111	LRB5	
+  RB6	11	113	RB6	 
+  LRB6	113	13	LRB6	
+  RB7	15	115	RB7	 
+  LRB7	115	16	LRB7	
+  RB8	17	117	RB8	 
+  LRB8	117	0	LRB8	
+  RB9	21	121	RB9	 
+  LRB9	121	0	LRB9	
+  RB10	23	123	RB10	 
+  LRB10	123	24	LRB10	
+  RB11	24	124	RB11	 
+  LRB11	124	0	LRB11	
+  RB12	27	127	RB12	 
+  LRB12	127	0	LRB12	
+  RB13	129	27	RB13	 
+  LRB13	29	129	LRB13	
+  RB14	130	30	RB14	 
+  LRB14	16	130	LRB14	
+  RB15	31	131	RB15	 
+  LRB15	131	0	LRB15	
+  RB16	34	134	RB16	 
+  LRB16	134	0	LRB16	
+  RB17	37	137	RB17	 
+  LRB17	137	0	LRB17	
+.ends
+
+.subckt	SFQDC	a	q
+  .param	B1=3.25
+  .param	B2=1.50
+  .param	B3=1.75
+  .param	B4=2.00
+  .param	B5=3.00
+  .param	B6=1.50
+  .param	B7=1.50
+  .param	B8=2.00
+  .param	IB1=280u
+  .param	IB2=150u
+  .param	IB3=220u
+  .param	IB4=80u
+  .param	L1=1.522p
+  .param	L2=0.827p
+  .param	L3=1.12884p
+  .param	L4=5.94p
+  .param	L5=1.11098p
+  .param	L6=3.216p
+  .param	L7=0.215p
+  .param	L8=0.954p
+  .param	L9=3.699p
+  .param	L10=2.010p
+  .param	L11=1.510p
+  .param	LR1=0.91p
+  .param	R1=0.375
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+  .param	LRB4=(RB4/Rsheet)*Lsheet
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP
+  .param	LRB6=(RB6/Rsheet)*Lsheet
+  .param	LRB7=(RB7/Rsheet)*Lsheet+LP
+  .param	LRB8=(RB8/Rsheet)*Lsheet+LP
+  B1	1	2	jjmit	 area=B1	
+  B2	5	6	jjmit	 area=B2	
+  B3	6	8	jjmit	 area=B3	
+  B4	10	11	jjmit	 area=B4	
+  B5	11	12	jjmit	 area=B5	
+  B6	14	15	jjmit	 area=B6	
+  B7	17	18	jjmit	 area=B7	
+  B8	21	22	jjmit	 area=B8	
+  IB1	0	3	IB1
+  IB2	0	7	IB2
+  IB3	0	16	IB3
+  IB4	0	20	IB4
+  LB1	3	1	LB
+  LB2	7	6	LB
+  LB3	16	15	LB
+  LB4	20	19	LB
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	5	4	L3	
+  L4	6	9	L4	
+  L5	4	10	L5	
+  L6	9	11	L6	
+  L7	9	14	L7	
+  L8	15	17	L8	
+  L9	17	19	L9	
+  L10	19	21	L10	
+  L11	21	q	L11	
+  R1	0	13	R1	 
+  LR1	13	9	LR1	
+  LP1	2	0	LP
+  LP3	8	0	LP
+  LP5	12	0	LP
+  LP7	18	0	LP
+  LP8	22	0	LP
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	5	105	RB2	 
+  LRB2	105	6	LRB2	
+  RB3	6	106	RB3	 
+  LRB3	106	0	LRB3	
+  RB4	10	110	RB4	 
+  LRB4	110	11	LRB4	
+  RB5	11	111	RB5	 
+  LRB5	111	0	LRB5	
+  RB6	14	114	RB6	 
+  LRB6	114	15	LRB6	
+  RB7	17	117	RB7	 
+  LRB7	117	0	LRB7	
+  RB8	21	121	RB8	 
+  LRB8	121	0	LRB8	
+.ends
+
+.subckt	JTL	a	q
+
+  .param	B1=IC
+  .param	B2=IC
+  .param	IB1=(B1+B2)*Ic0*BiasCoef
+  .param	L1=Phi0/(4*B1*Ic0)
+  .param	L2=Phi0/(4*B1*Ic0)
+  .param	L3=Phi0/(4*B2*Ic0)
+  .param	L4=Phi0/(4*B2*Ic0)
+  .param	RB1=B0Rs/B1	  
+  .param	RB2=B0Rs/B2
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	5	6	jjmit	 area=B2	
+
+  IB1	0	4	IB1
+
+  LB1	4	3	LB
+
+  L1	a	1	L1	
+  L2	1	3	L2	
+  L3	3	5	L3	
+  L4	5	q	L4	
+
+  LP1	2	0	LP
+  LP2	6	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	5	105	RB2	 
+  LRB2	105	0	LRB2	
+.ends
+
+.subckt	SPLITT	a	q0	q1
+
+  .param	B1=ICreceive
+  .param	B2=IC/1.25
+  .param	B3=ICtrans
+  .param	B4=ICtrans
+  .param	IB1=BiasCoef*(B1+B2)*Ic0
+  .param	IB2=BiasCoef*B3*Ic0
+  .param	IB3=BiasCoef*B4*Ic0
+  .param	L1=Lptl
+  .param	L2=(Phi0/(2*B1*Ic0))/2
+  .param	L3=(Phi0/(2*B1*Ic0))/2
+  .param	L4=(Phi0/(2*B2*Ic0))/2
+  .param	L5=(Phi0/(2*B2*Ic0))/2
+  .param	L6=Lptl
+  .param	L7=(Phi0/(2*B2*Ic0))/2
+  .param	L8=Lptl
+  .param	RD1=RD
+  .param	RD2=RD
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+  .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	5	6	jjmit	 area=B2	
+  B3	8	9	jjmit	 area=B3	
+  B4	12	13	jjmit	 area=B4	
+
+  IB1	0	4	IB1
+  IB2	0	10	IB2
+  IB3	0	14	IB3
+
+  LB1	4	3	LB
+  LB2	10	8	LB
+  LB3	14	12	LB
+
+  L1	a	1	L1	
+  L2	1	3	L2	
+  L3	3	5	L3	
+  L4	5	7	L4	
+  L5	8	7	L5	
+  L6	8	11	L6	
+  L7	7	12	L7	
+  L8	12	15	L8	
+
+  RD1	11	q0	RD1	 
+  RD2	15	q1	RD2	 
+
+  LP1	2	0	LP
+  LP2	6	0	LP
+  LP3	9	0	LP
+  LP4	13	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	5	105	RB2	 
+  LRB2	105	0	LRB2	
+  RB3	8	108	RB3	 
+  LRB3	108	0	LRB3	
+  RB4	12	112	RB4	 
+  LRB4	112	0	LRB4	
+.ends
+
+.subckt	BUFF	a	q
+
+  .param	B1=IC
+  .param	B2=IC
+  .param	B3=IC
+  .param	B4=IC
+  .param	IB1=B1*Ic0*BiasCoef
+  .param	IB2=B2*Ic0*0.95
+  .param	IB3=B3*Ic0*0.95
+  .param	IB4=B4*Ic0*BiasCoef
+  .param	L1=Phi0/(4*B1*Ic0)
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=Phi0/(2*B2*Ic0)
+  .param	L4=Phi0/(2*B3*Ic0)
+  .param	L5=Phi0/(4*B4*Ic0)
+  .param	RB1=B0Rs/B1	  
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+  .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	7	8	jjmit	 area=B3	
+  B4	10	11	jjmit	 area=B4	
+
+  IB1	0	3	IB1
+  IB2	0	6	IB2
+  IB3	0	9	IB3
+  IB4	0	12	IB4
+
+  LB1	3	1	LB
+  LB2	6	4	LB
+  LB3	9	7	LB
+  LB4	12	10	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	4	7	L3	
+  L4	7	10	L4	
+  L5	10	q	L5	
+
+  LP1	2	0	LP
+  LP2	5	0	LP
+  LP3	8	0	LP
+  LP4	11	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	0	LRB2	
+  RB3	7	107	RB3	 
+  LRB3	107	0	LRB3	
+  RB4	10	110	RB4	 
+  LRB4	110	0	LRB4	
+.ends
+
+.subckt	NDROT	a	b	clk	q
+  .param	B1=ICreceive
+  .param	B2=IC/1.25
+  .param	B3=IC	
+  .param	B4=IC/1.4
+  .param	B5=IC
+  .param	B6=B1
+  .param	B7=B2
+  .param	B8=B3
+  .param	B9=B4
+  .param	B10=B5
+  .param	B11=IC/3
+  .param	B12=IC/1.25
+  .param	B13=ICreceive
+  .param	B14=IC/1.25	
+  .param	B15=IC/3
+  .param	B16=ICtrans
+  .param	IB1=BiasCoef*Ic0*(B1+B2)
+  .param	IB2=BiasCoef*Ic0*B3
+  .param	IB3=Ic0*B5
+  .param	IB4=IB1
+  .param	IB5=IB2
+  .param	IB6=BiasCoef*Ic0*B12
+  .param	IB7=BiasCoef*Ic0*(B13+B14)
+  .param	IB8=BiasCoef*Ic0*B16
+  .param	L1=Lptl
+  .param	L2=(Phi0/(2*B1*Ic0))*(B1/(B1+B2))
+  .param	L3=(Phi0/(2*B2*Ic0))*(B2/(B1+B2))
+  .param	L4=Phi0/(2*B2*Ic0)
+  .param	L5=Phi0/(2*B3*Ic0)
+  .param	L6=Phi0/(2*B5*Ic0)
+  .param	L7=Lptl
+  .param	L8=L2
+  .param	L9=L3
+  .param	L10=L4
+  .param	L11=L5
+  .param	L12=L6
+  .param	L13=1p
+  .param	L14=1p
+  .param	L15=Lptl
+  .param	L16=(Phi0/(2*B13*Ic0))*(B13/(B13+B14))
+  .param	L17=(Phi0/(2*B13*Ic0))*(B14/(B13+B14))
+  .param	L18=Phi0/(2*B14*Ic0)
+  .param	L19=Phi0/(2*B12*Ic0)
+  .param	L20=Lptl
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	RB9=B0Rs/B9
+  .param	RB10=B0Rs/B10
+  .param	RB11=B0Rs/B11
+  .param	RB12=B0Rs/B12
+  .param	RB13=B0Rs/B13
+  .param	RB14=B0Rs/B14
+  .param	RB15=B0Rs/B15
+  .param	RB16=B0Rs/B16
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+  .param	LRB4=(RB4/Rsheet)*Lsheet
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP
+  .param	LRB6=(RB6/Rsheet)*Lsheet+LP
+  .param	LRB7=(RB7/Rsheet)*Lsheet+LP
+  .param	LRB8=(RB8/Rsheet)*Lsheet+LP
+  .param	LRB9=(RB9/Rsheet)*Lsheet
+  .param	LRB10=(RB10/Rsheet)*Lsheet+LP
+  .param	LRB11=(RB11/Rsheet)*Lsheet
+  .param	LRB12=(RB12/Rsheet)*Lsheet+LP
+  .param	LRB13=(RB13/Rsheet)*Lsheet+LP
+  .param	LRB14=(RB14/Rsheet)*Lsheet+LP
+  .param	LRB15=(RB15/Rsheet)*Lsheet
+  .param	LRB16=(RB16/Rsheet)*Lsheet+LP
+
+  IB1	0	4	IB1
+  LB1	4	3	LB
+  IB2	0	9	IB2
+  LB2	9	7	LB
+  IB3	0	13	IB3
+  LB3	13	11	LB
+  IB4	0	18	IB4
+  LB4	18	17	LB
+  IB5	0	23	IB5
+  LB5	23	21	LB
+  IB6	0	29	IB6
+  LB6	29	28	LB
+  IB7	0	35	IB7
+  LB7	35	34	LB
+  IB8	0	41	IB8
+  LB8	41	39	LB
+
+  B1	1	2	jjmit	 area=B1	
+  LP1	2	0	LP
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  B2	5	6	jjmit	 area=B2	
+  LP2	6	0	LP
+  RB2	5	105	RB2	 
+  LRB2	105	0	LRB2	
+  B3	7	8	jjmit	 area=B3	
+  LP3	8	0	LP
+  RB3	7	107	RB3	 
+  LRB3	107	0	LRB3	
+  B4	10	11	jjmit	 area=B4	
+  RB4	10	110	RB4	 
+  LRB4	110	11	LRB4	
+  B5	11	12	jjmit	 area=B5	
+  LP5	12	0	LP
+  RB5	11	111	RB5	 
+  LRB5	111	0	LRB5	
+
+  B6	15	16	jjmit	 area=B6	
+  LP6	16	0	LP
+  RB6	15	115	RB6	 
+  LRB6	115	0	LRB6	
+  B7	19	20	jjmit	 area=B7	
+  LP7	20	0	LP
+  RB7	19	119	RB7	 
+  LRB7	119	0	LRB7	
+  B8	21	22	jjmit	 area=B8
+  LP8	22	0	LP
+  RB8	21	121	RB8	 
+  LRB8	121	0	LRB8	
+  B9	24	25	jjmit	 area=B9	
+  RB9	24	124	RB9	 
+  LRB9	124	25	LRB9	
+  B10	25	26	jjmit	 area=B10	
+  LP10	26	0	LP
+  RB10	25	125	RB10	 
+  LRB10	125	0	LRB10	
+
+  B11	14	27	jjmit	 area=B11	
+  RB11	14	127	RB11	 
+  LRB11	127	27	LRB11	
+  B12	30	31	jjmit	 area=B12	
+  LP12	31	0	LP
+  RB12	30	130	RB12	 
+  LRB12	130	0	LRB12	
+  B13	32	33	jjmit	 area=B13	
+  LP13	33	0	LP
+  RB13	32	132	RB13	 
+  LRB13	132	0	LRB13	
+  B14	36	37	jjmit	 area=B14	
+  LP14	37	0	LP
+  RB14	36	136	RB14	 
+  LRB14	136	0	LRB14	
+  B15	38	30	jjmit	 area=B15	
+  RB15	38	138	RB15	 
+  LRB15	138	30	LRB15	
+  B16	39	40	jjmit	 area=B16	
+  LP16	40	0	LP
+  RB16	39	139	RB16	 
+  LRB16	139	0	LRB16	
+
+  L1	a	1	L1	
+  L2	1	3	L2	
+  L3	3	5	L3	
+  L4	5	7	L4	
+  L5	7	10	L5	
+  L6	11	14	L6
+
+  L7	b	15	L7	
+  L8	15	17	L8	
+  L9	17	19	L9	
+  L10	19	21	L10	
+  L11	21	24	L11	
+  L12	25	14	L12	
+
+  L13	27	28	L13	
+  L14	28	30	L14	
+  L15	clk	32	L15	
+  L16	32	34	L16	
+  L17	34	36	L17	
+  L18	36	38	L18	
+  L19	30	39	L19	
+  L20	39	42	L20	
+
+  RD	42	q	RD	 
+.ends
+
+* .subckt	NDROT_simple	a	b	clk	q
+*   .param	B1=ICreceive
+*   .param	B2=IC/1.25
+*   .param	B3=IC	
+*   .param	B4=IC/1.4
+*   .param	B5=IC
+*   .param	B6=B1
+*   .param	B7=B2
+*   .param	B8=B3
+*   .param	B9=B4
+*   .param	B10=B5
+*   .param	B11=IC/3
+*   .param	B12=IC/1.25
+*   .param	B13=ICreceive
+*   .param	B14=IC/1.25	
+*   .param	B15=IC/3
+*   .param	B16=ICtrans
+*   .param	IB1=BiasCoef*Ic0*(B1+B2)
+*   .param	IB2=BiasCoef*Ic0*B3
+*   .param	IB3=Ic0*B5
+*   .param	IB4=IB1
+*   .param	IB5=IB2
+*   .param	IB6=BiasCoef*Ic0*B12
+*   .param	IB7=BiasCoef*Ic0*(B13+B14)
+*   .param	IB8=BiasCoef*Ic0*B16
+*   .param	L1=Lptl
+*   .param	L2=(Phi0/(2*B1*Ic0))*(B1/(B1+B2))
+*   .param	L3=(Phi0/(2*B2*Ic0))*(B2/(B1+B2))
+*   .param	L4=Phi0/(2*B2*Ic0)
+*   .param	L5=Phi0/(2*B3*Ic0)
+*   .param	L6=Phi0/(2*B5*Ic0)
+*   .param	L7=Lptl
+*   .param	L8=L2
+*   .param	L9=L3
+*   .param	L10=L4
+*   .param	L11=L5
+*   .param	L12=L6
+*   .param	L13=1p
+*   .param	L14=1p
+*   .param	L15=Lptl
+*   .param	L16=(Phi0/(2*B13*Ic0))*(B13/(B13+B14))
+*   .param	L17=(Phi0/(2*B13*Ic0))*(B14/(B13+B14))
+*   .param	L18=Phi0/(2*B14*Ic0)
+*   .param	L19=Phi0/(2*B12*Ic0)
+*   .param	L20=Lptl
+*   .param	RB1=B0Rs/B1
+*   .param	RB2=B0Rs/B2
+*   .param	RB3=B0Rs/B3
+*   .param	RB4=B0Rs/B4
+*   .param	RB5=B0Rs/B5
+*   .param	RB6=B0Rs/B6
+*   .param	RB7=B0Rs/B7
+*   .param	RB8=B0Rs/B8
+*   .param	RB9=B0Rs/B9
+*   .param	RB10=B0Rs/B10
+*   .param	RB11=B0Rs/B11
+*   .param	RB12=B0Rs/B12
+*   .param	RB13=B0Rs/B13
+*   .param	RB14=B0Rs/B14
+*   .param	RB15=B0Rs/B15
+*   .param	RB16=B0Rs/B16
+*   .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+*   .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+*   .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+*   .param	LRB4=(RB4/Rsheet)*Lsheet
+*   .param	LRB5=(RB5/Rsheet)*Lsheet+LP
+*   .param	LRB6=(RB6/Rsheet)*Lsheet+LP
+*   .param	LRB7=(RB7/Rsheet)*Lsheet+LP
+*   .param	LRB8=(RB8/Rsheet)*Lsheet+LP
+*   .param	LRB9=(RB9/Rsheet)*Lsheet
+*   .param	LRB10=(RB10/Rsheet)*Lsheet+LP
+*   .param	LRB11=(RB11/Rsheet)*Lsheet
+*   .param	LRB12=(RB12/Rsheet)*Lsheet+LP
+*   .param	LRB13=(RB13/Rsheet)*Lsheet+LP
+*   .param	LRB14=(RB14/Rsheet)*Lsheet+LP
+*   .param	LRB15=(RB15/Rsheet)*Lsheet
+*   .param	LRB16=(RB16/Rsheet)*Lsheet+LP
+
+*   IB1	0	4	IB1
+*   LB1	4	3	LB
+*   IB2	0	9	IB2
+*   LB2	9	7	LB
+*   IB3	0	13	IB3
+*   LB3	13	11	LB
+*   IB4	0	18	IB4
+*   LB4	18	17	LB
+*   IB5	0	23	IB5
+*   LB5	23	21	LB
+*   IB6	0	29	IB6
+*   LB6	29	28	LB
+*   IB7	0	35	IB7
+*   LB7	35	34	LB
+*   IB8	0	41	IB8
+*   LB8	41	39	LB
+
+*   L1	a	1	L1	
+*   B1	1	    GND
+*   L2	1	3	L2	
+*   L3	3	5	L3	
+*   B2	5	    GND	
+*   L4	5	7	L4	
+*   B3	7	    GND
+*   L5	7	10	L5	
+*   B4	10	11	SERIES
+*   B5	11	    GND
+*   L6	11	14	L6
+
+
+*   L7	b	15	L7	
+*   B6	15	    GND
+*   L8	15	17	L8	
+*   L9	17	19	L9	
+*   B7	19	    GND
+*   L10	19	21	L10	
+*   B8	21	    GND
+*   L11	21	24	L11	
+*   B9	24	25	SERIES
+*   B10	25	    GND
+*   L12	25	14	L12	
+
+*   B11	14	27	SERIES
+*   L13	27	28	L13	
+*   L14	28	30	L14	
+*   B12	30	    GND
+
+*   L15	clk	32	L15	
+*   B13	32	    GND
+*   L16	32	34	L16	
+*   L17	34	36	L17	
+*   B14	36	    GND
+*   L18	36	38	L18	
+*   B15	38	30	SERIES
+*   L19	30	39	L19	
+*   B16	39	    GND
+*   L20	39	42	L20	
+*   RD	42	q	RD	 
+
+* .ends
+
+.subckt	NOTT	a	clk	q
+
+  .param	B1=ICreceive
+  .param	B2=IC
+  .param	B3=IC/3
+  .param	B4=IC/3
+  .param	B5=IC/1.4
+  .param	B6=ICreceive
+  .param	B7=IC
+  .param	B8=IC/3
+  .param	B9=IC/3
+  .param	B10=IC
+  .param	IB1=BiasCoef*Ic0*(B1+B2)
+  .param	IB2=BiasCoef*Ic0*(B4+B8)
+  .param	IB3=BiasCoef*Ic0*(B6+B7)
+  .param	IB4=BiasCoef*B10*Ic0
+  .param	L1=Lptl
+  .param	L2=(Phi0/(2*Ic0*B1))*(B1/(B1+B2))
+  .param	L3=(Phi0/(2*Ic0*B1))*(B2/(B1+B2))
+  .param	L4=Phi0/(2*B1*Ic0)
+  .param	L5=2p
+  .param	L6=8p
+  .param	L7=Lptl
+  .param	L8=(Phi0/(2*Ic0*B6))*(B6/(B6+B7))
+  .param	L9=(Phi0/(2*Ic0*B6))*(B7/(B6+B7))
+  .param	L10=Phi0/(2*B7*Ic0)
+  .param	L11=2p
+  .param	L12=8p
+  .param	L13=Lptl
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	RB9=B0Rs/B9
+  .param	RB10=B0Rs/B10
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet
+  .param	LRB4=(RB4/Rsheet)*Lsheet
+  .param	LRB5=(RB5/Rsheet)*Lsheet
+  .param	LRB6=(RB6/Rsheet)*Lsheet+LP
+  .param	LRB7=(RB7/Rsheet)*Lsheet+LP
+  .param	LRB8=(RB8/Rsheet)*Lsheet
+  .param	LRB9=(RB9/Rsheet)*Lsheet+LP
+  .param	LRB10=(RB10/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	5	6	jjmit	 area=B2	
+  B3	7	8	jjmit	 area=B3	
+  B4	10	11	jjmit	 area=B4	
+  B5	12	13	jjmit	 area=B5	
+  B6	14	15	jjmit	 area=B6	
+  B7	18	19	jjmit	 area=B7	
+  B8	13	20	jjmit	 area=B8	
+  B9	11	21	jjmit	 area=B9	
+  B10	22	23	jjmit	 area=B10	
+
+  IB1	0	4	IB1
+  IB2	0	9	IB2
+  IB3	0	17	IB3
+  IB4	0	24	IB4
+
+  LB1	4	3	LB
+  LB2	9	8	LB
+  LB3	17	16	LB
+  LB4	24	22	LB
+
+  L1	a	1	L1	
+  L2	1	3	L2	
+  L3	3	5	L3	
+  L4	5	7	L4	
+  L5	8	10	L5	
+  L6	8	12	L6	
+  L7	clk	14	L7	
+  L8	14	16	L8	
+  L9	16	18	L9	
+  L10	18	13	L10	
+  L11	11	20	L11	
+  L12	11	22	L12	
+  L13	22	25	L13	
+
+  RD	25	q	RD
+
+  LP1	2	0	LP
+  LP2	6	0	LP
+  LP6	15	0	LP
+  LP7	19	0	LP
+  LP9	21	0	LP
+  LP10	23	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	5	105	RB2	 
+  LRB2	105	0	LRB2	
+  RB3	7	107	RB3	 
+  LRB3	107	8	LRB3	
+  RB4	10	110	RB4	 
+  LRB4	110	11	LRB4	
+  RB5	12	112	RB5	 
+  LRB5	112	13	LRB5	
+  RB6	14	114	RB6	 
+  LRB6	114	0	LRB6	
+  RB7	18	118	RB7	 
+  LRB7	118	0	LRB7	
+  RB8	13	113	RB8	 
+  LRB8	113	20	LRB8	
+  RB9	11	111	RB9	 
+  LRB9	111	0	LRB9	
+  RB10	22	122	RB10	 
+  LRB10	122	0	LRB10	
+.ends
+
+.subckt	ALWAYS0T_SYNC_NOA	a	q
+  .param	L1=Lptl
+  .param	L2=Lptl
+  .param	R1=2
+  .param	R2=2
+
+  L1	clk	1	L1	
+  L2	2	q	L2	
+
+  R1	1	0	R1	 
+  R2	2	0	R2	 
+.ends
+
+.subckt	SPLIT	a	q0	q1
+
+  .param	B1=IC
+  .param	B2=IC
+  .param	B3=IC
+  .param	IB1=BiasCoef*Ic0*B1
+  .param	IB2=BiasCoef*Ic0*B2
+  .param	IB3=IB2
+  .param	L1=Phi0/(4*IC*Ic0)
+  .param	L2=(Phi0/(2*B1*Ic0))/2
+  .param	L3=L2
+  .param	L4=Phi0/(4*IC*Ic0)
+  .param	L5=L3
+  .param	L6=L4
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	5	6	jjmit	 area=B2	
+  B3	8	9	jjmit	 area=B3	
+
+  IB1	0	3	IB1
+  IB2	0	7	IB2
+  IB3	0	10	IB3
+
+  LB1	3	1	LB
+  LB2	7	5	LB
+  LB3	10	8	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	5	4	L3	
+  L4	5	q0	L4	
+  L5	4	8	L5	
+  L6	8	q1	L6	
+
+  LP1	2	0	LP
+  LP2	6	0	LP
+  LP3	9	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	5	105	RB2	 
+  LRB2	105	0	LRB2	
+  RB3	8	108	RB3	 
+  LRB3	108	0	LRB3	
+.ends
+
+.subckt	DCSFQ	a	q
+
+  .param	B1=2.25
+  .param	B2=2.25
+  .param	B3=IC
+  .param	IB1=275u
+  .param	IB2=B3*Ic0*BiasCoef
+  .param	L1=1p
+  .param	L2=3.9p
+  .param	L3=0.6p
+  .param	L4=1.1p
+  .param	L5=4.5p
+  .param	L6=Phi0/(4*IC*Ic0)
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	LRB1=(RB1/Rsheet)*Lsheet
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+
+  B1	2	3	jjmit	 area=B1	
+  B2	5	6	jjmit	 area=B2	
+  B3	7	8	jjmit	 area=B3	
+
+  IB1	0	4	IB1
+  IB2	0	9	IB2
+
+  LB1	4	3	LB
+  LB2	9	7	LB
+
+  L1	a	1	L1	
+  L2	1	0	L2	
+  L3	1	2	L3	
+  L4	3	5	L4	
+  L5	5	7	L5	
+  L6	7	q	L6	
+
+  LP2	6	0	LP
+  LP3	8	0	LP
+
+  RB1	2	102	RB1	 
+  LRB1	102	3	LRB1	
+  RB2	5	105	RB2	 
+  LRB2	105	0	LRB2	
+  RB3	7	107	RB3	 
+  LRB3	107	0	LRB3
+  
+.ends
+
+.subckt	OR2	a	b	clk	q
+
+  .param	B1=IC
+  .param	B2=IC
+  .param	B3=IC/1.4
+  .param	B4=B1
+  .param	B5=B2
+  .param	B6=B3
+  .param	B7=IC/1.4
+  .param	B8=IC
+  .param	B9=IC
+  .param	B10=IC
+  .param	B11=IC/1.4
+  .param	B12=IC
+  .param	IB1=BiasCoef*Ic0*B1
+  .param	IB2=IB1
+  .param	IB3=Ic0*IC
+  .param	IB4=Ic0*B8
+  .param	IB5=BiasCoef*Ic0*B10
+  .param	IB6=BiasCoef*Ic0*B12
+  .param	L1=Phi0/(4*B1*Ic0)
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=1p
+  .param	L4=L1
+  .param	L5=L2
+  .param	L6=L3
+  .param	L7=Phi0/(2*B2*Ic0)
+  .param	L8=Phi0/(B8*Ic0)
+  .param	L9=Phi0/(4*B10*Ic0)
+  .param	L10=Phi0/(2*B10*Ic0)
+  .param	L11=Phi0/(2*B9*Ic0)
+  .param	L12=Phi0/(4*B12*Ic0)
+  .param	RB1=B0Rs/B1	  
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	RB9=B0Rs/B9
+  .param	RB10=B0Rs/B10	
+  .param	RB11=B0Rs/B11	
+  .param	RB12=B0Rs/B12	
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet
+  .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP	
+  .param	LRB6=(RB6/Rsheet)*Lsheet
+  .param	LRB7=(RB7/Rsheet)*Lsheet	
+  .param	LRB8=(RB8/Rsheet)*Lsheet+LP
+  .param	LRB9=(RB9/Rsheet)*Lsheet+LP
+  .param	LRB10=(RB10/Rsheet)*Lsheet+LP
+  .param	LRB11=(RB11/Rsheet)*Lsheet
+  .param	LRB12=(RB12/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	4	6	jjmit	 area=B3	
+  B4	8	9	jjmit	 area=B4	
+  B5	11	12	jjmit	 area=B5	
+  B6	11	13	jjmit	 area=B6	
+  B7	15	16	jjmit	 area=B7	
+  B8	16	17	jjmit	 area=B8	
+  B9	19	20	jjmit	 area=B9	
+  B10	21	22	jjmit	 area=B10	
+  B11	24	19	jjmit	 area=B11	
+  B12	25	26	jjmit	 area=B12	
+
+  IB1	0	3	IB1
+  IB2	0	10	IB2
+  IB3	0	14	IB3
+  IB4	0	18	IB4
+  IB5	0	23	IB5
+  IB6	0	27	IB6
+
+  LB1	3	1	LB
+  LB2	10	8	LB
+  LB3	14	7	LB
+  LB4	18	16	LB
+  LB5	23	21	LB
+  LB6	27	25	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	6	7	L3	
+  L4	b	8	L4	
+  L5	8	11	L5	
+  L6	13	7	L6	
+  L7	7	15	L7	
+  L8	16	19	L8	
+  L9	clk	21	L9	
+  L10	21	24	L10	
+  L11	19	25	L11	
+  L12	25	q	L12	
+
+  LP1	2	0	LP
+  LP2	5	0	LP
+  LP4	9	0	LP
+  LP5	12	0	LP
+  LP8	17	0	LP
+  LP9	20	0	LP
+  LP10	22	0	LP
+  LP12	26	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	0	LRB2	
+  RB3	4	106	RB3	 
+  LRB3	106	6	LRB3	
+  RB4	8	108	RB4	 
+  LRB4	108	0	LRB4	
+  RB5	11	111	RB5	 
+  LRB5	111	0	LRB5	
+  RB6	11	113	RB6	 
+  LRB6	113	13	LRB6	
+  RB7	15	115	RB7	 
+  LRB7	115	16	LRB7	
+  RB8	16	116	RB8	 
+  LRB8	116	0	LRB8	
+  RB9	19	119	RB9	 
+  LRB9	119	0	LRB9	
+  RB10	21	121	RB10	 
+  LRB10	121	0	LRB10	
+  RB11	24	124	RB11	 
+  LRB11	124	19	LRB11	
+  RB12	25	125	RB12	 
+  LRB12	125	0	LRB12	
+.ends
+
+.subckt	NDRO	a	b	clk	q
+
+  .param	B1=IC
+  .param	B2=IC/1.4
+  .param	B3=IC
+  .param	B4=IC
+  .param	B5=IC/1.4
+  .param	B6=IC
+  .param	B7=IC/3
+  .param	B8=IC
+  .param	B9=IC
+  .param	B10=IC/1.4
+  .param	B11=IC
+  .param	IB1=BiasCoef*Ic0*B1
+  .param	IB2=Ic0*B3
+  .param	IB3=BiasCoef*Ic0*B4
+  .param	IB4=BiasCoef*Ic0*B8
+  .param	IB5=BiasCoef*Ic0*B9
+  .param	IB6=BiasCoef*Ic0*B11
+  .param	L1=Phi0/(4*B1*Ic0)
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=Phi0/(2*B3*Ic0)
+  .param	L4=Phi0/(4*B4*Ic0)
+  .param	L5=Phi0/(2*B4*Ic0)
+  .param	L6=Phi0/(2*B6*Ic0)
+  .param	L7=2p
+  .param	L8=2p
+  .param	L9=Phi0/(4*B9*Ic0)
+  .param	L10=Phi0/(2*B9*Ic0)
+  .param	L11=Phi0/(2*B8*Ic0)
+  .param	L12=Phi0/(4*B11*Ic0)
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	RB9=B0Rs/B9
+  .param	RB10=B0Rs/B10
+  .param	RB11=B0Rs/B11
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+  .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+  .param	LRB5=(RB5/Rsheet)*Lsheet
+  .param	LRB6=(RB6/Rsheet)*Lsheet+LP
+  .param	LRB7=(RB7/Rsheet)*Lsheet
+  .param	LRB8=(RB8/Rsheet)*Lsheet+LP
+  .param	LRB9=(RB9/Rsheet)*Lsheet+LP
+  .param	LRB10=(RB10/Rsheet)*Lsheet
+  .param	LRB11=(RB11/Rsheet)*Lsheet+LP
+
+  L1	a	1	L1	
+  B1	1	2	jjmit	 area=B1	
+  LP1	2	0	LP
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+
+  L2	1	4	L2	
+  B2	4	5	jjmit	 area=B2	
+  RB2	4	104	RB2	 
+  LRB2	104	5	LRB2	
+  
+  B3	5	6	jjmit	 area=B3	
+  LP3	6	0	LP
+  RB3	5	105	RB3	 
+  LRB3	105	0	LRB3	
+  L3	5	8	L3	
+
+  L4	b	9	L4	
+  B4	9	10	jjmit	 area=B4	
+  LP4	10	0	LP
+  RB4	9	109	RB4	 
+  LRB4	109	0	LRB4	
+
+  L5	9	12	L5	
+  B5	12	13	jjmit	 area=B5	
+  RB5	12	112	RB5	 
+  LRB5	112	13	LRB5	
+
+  L6	13	8	L6	
+  B6	13	14	jjmit	 area=B6
+  LP6	14	0	LP
+  RB6	13	113	RB6	 
+  LRB6	113	0	LRB6
+
+  B7	8	15	jjmit	 area=B7	
+  RB7	8	108	RB7	 
+  LRB7	108	15	LRB7	
+  L7	15	16	L7	
+
+  L8	16	18	L8	
+  B8	18	19	jjmit	 area=B8	
+  LP8	19	0	LP
+  RB8	18	118	RB8	 
+  LRB8	118	0	LRB8	
+
+  L9	clk	20	L9	
+  B9	20	21	jjmit	 area=B9	
+  LP9	21	0	LP
+  RB9	20	120	RB9	 
+  LRB9	120	0	LRB9	
+
+  L10	20	23	L10	
+  B10	23	18	jjmit	 area=B10	
+  RB10	23	123	RB10	 
+  LRB10	123	18	LRB10	
+
+  L11	18	24	L11	
+  B11	24	25	jjmit	 area=B11	
+  LP11	25	0	LP
+  RB11	24	124	RB11	 
+  LRB11	124	0	LRB11	
+
+  L12	24	q	L12	
+
+  IB1	0	3	IB1
+  LB1	3	1	LB
+
+  IB2	0	7	IB2
+  LB2	7	5	LB
+
+  IB3	0	11	IB3
+  LB3	11	9	LB
+
+  IB4	0	17	IB4
+  LB4	17	16	LB
+
+  IB5	0	22	IB5
+  LB5	22	20	LB
+
+  IB6	0	26	IB6
+  LB6	26	24	LB
+.ends
+
+* .subckt	NDRO_simple	a	b	clk	q
+
+*   .param	B1=IC
+*   .param	B2=IC/1.4
+*   .param	B3=IC
+*   .param	B4=IC
+*   .param	B5=IC/1.4
+*   .param	B6=IC
+*   .param	B7=IC/3
+*   .param	B8=IC
+*   .param	B9=IC
+*   .param	B10=IC/1.4
+*   .param	B11=IC
+*   .param	IB1=BiasCoef*Ic0*B1
+*   .param	IB2=Ic0*B3
+*   .param	IB3=BiasCoef*Ic0*B4
+*   .param	IB4=BiasCoef*Ic0*B8
+*   .param	IB5=BiasCoef*Ic0*B9
+*   .param	IB6=BiasCoef*Ic0*B11
+*   .param	L1=Phi0/(4*B1*Ic0)
+*   .param	L2=Phi0/(2*B1*Ic0)
+*   .param	L3=Phi0/(2*B3*Ic0)
+*   .param	L4=Phi0/(4*B4*Ic0)
+*   .param	L5=Phi0/(2*B4*Ic0)
+*   .param	L6=Phi0/(2*B6*Ic0)
+*   .param	L7=2p
+*   .param	L8=2p
+*   .param	L9=Phi0/(4*B9*Ic0)
+*   .param	L10=Phi0/(2*B9*Ic0)
+*   .param	L11=Phi0/(2*B8*Ic0)
+*   .param	L12=Phi0/(4*B11*Ic0)
+*   .param	RB1=B0Rs/B1
+*   .param	RB2=B0Rs/B2
+*   .param	RB3=B0Rs/B3
+*   .param	RB4=B0Rs/B4
+*   .param	RB5=B0Rs/B5
+*   .param	RB6=B0Rs/B6
+*   .param	RB7=B0Rs/B7
+*   .param	RB8=B0Rs/B8
+*   .param	RB9=B0Rs/B9
+*   .param	RB10=B0Rs/B10
+*   .param	RB11=B0Rs/B11
+*   .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+*   .param	LRB2=(RB2/Rsheet)*Lsheet
+*   .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+*   .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+*   .param	LRB5=(RB5/Rsheet)*Lsheet
+*   .param	LRB6=(RB6/Rsheet)*Lsheet+LP
+*   .param	LRB7=(RB7/Rsheet)*Lsheet
+*   .param	LRB8=(RB8/Rsheet)*Lsheet+LP
+*   .param	LRB9=(RB9/Rsheet)*Lsheet+LP
+*   .param	LRB10=(RB10/Rsheet)*Lsheet
+*   .param	LRB11=(RB11/Rsheet)*Lsheet+LP
+
+*   L1	a	1	L1	
+*   B1	1	    GND
+*   L2	1	4	L2	
+*   B2	4	5	SERIES
+*   B3	5	    GND
+*   L3	5	8	L3	
+
+*   L4	b	9	L4	
+*   B4	9	    GND
+*   L5	9	12	L5	
+*   B5	12	13	SERIES
+*   B6	13	    GND
+*   L6	13	8	L6	
+
+*   B7	8	15	SERIES
+*   L7	15	16	L7	
+*   L8	16	18	L8	
+*   B8	18	    GND	
+
+*   L9	clk	20	L9	
+*   B9	20	    GND	
+*   L10	20	23	L10	
+*   B10	23	18	SERIES	
+*   L11	18	24	L11	
+*   B11	24	    GND	
+*   L12	24	q	L12	
+
+*   IB1	0	3	IB1
+*   LB1	3	1	LB
+*   IB2	0	7	IB2
+*   LB2	7	5	LB
+*   IB3	0	11	IB3
+*   LB3	11	9	LB
+*   IB4	0	17	IB4
+*   LB4	17	16	LB
+*   IB5	0	22	IB5
+*   LB5	22	20	LB
+*   IB6	0	26	IB6
+*   LB6	26	24	LB
+* .ends
+
+.subckt	ALWAYS0_SYNC_NOA	clk	q
+
+  .param	B1=IC
+  .param	B2=IC
+  .param	IB1=B1*Ic0*BiasCoef
+  .param	IB2=B2*Ic0*BiasCoef
+  .param	L1=Phi0/(4*B1*Ic0)
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=Phi0/(2*B2*Ic0)
+  .param	L4=Phi0/(4*B2*Ic0)
+  .param	R1=2
+  .param	R2=2
+  .param	RB1=B0Rs/B1	  
+  .param	RB2=B0Rs/B2
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	6	7	jjmit	 area=B2	
+
+  IB1	0	3	IB1
+  IB2	0	8	IB2
+
+  LB1	3	1	LB
+  LB2	8	6	LB
+
+  LP1	2	0	LP
+  LP2	7	0	LP
+
+  L1	clk	1	L1	
+  L2	1	4	L2	
+  L3	5	6	L3	
+  L4	6	q	L4	
+
+  R1	4	0	R1	
+  R2	5	0	R2	 
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	6	106	RB2	 
+  LRB2	106	0	LRB2	
+.ends
+
+.subckt	ALWAYS0_ASYNC	a	q
+
+  .param	B1=IC
+  .param	B2=IC
+  .param	IB1=B1*Ic0*BiasCoef
+  .param	IB2=B2*Ic0*BiasCoef
+  .param	L1=Phi0/(4*B1*Ic0)
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=Phi0/(2*B2*Ic0)
+  .param	L4=Phi0/(4*B2*Ic0)
+  .param	R1=2
+  .param	R2=2
+  .param	RB1=B0Rs/B1	  
+  .param	RB2=B0Rs/B2
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	6	7	jjmit	 area=B2	
+
+  IB1	0	3	IB1
+  IB2	0	8	IB2
+
+  LB1	3	1	LB
+  LB2	8	6	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	5	6	L3	
+  L4	6	q	L4	
+
+  R1	4	0	R1	
+  R2	5	0	R2	 
+
+  LP1	2	0	LP
+  LP2	7	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	6	106	RB2	 
+  LRB2	106	0	LRB2	
+.ends
+
+.subckt	PTLTX	a	q
+
+  .param	B1=IC
+  .param	B2=ICtrans
+  .param	IB1=BiasCoef*Ic0*B1	     
+  .param	IB2=BiasCoef*Ic0*B2
+  .param	LB1=LB	          
+  .param	LB2=LB	  
+  .param	L1=Phi0/(4*B1*Ic0)         
+  .param	L2=Phi0/(2*B1*Ic0)     
+  .param	L3=Lptl
+  .param	RB1=B0Rs/B1	      
+  .param	RB2=B0Rs/B2
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+
+  IB1	0	3	IB1
+  IB2	0	6	IB2
+
+  LB1	3	1	LB
+  LB2	6	4	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	4	7	L3	
+
+  LP1	2	0	LP
+  LP2	5	0	LP
+
+  RD	7	q	RD	 
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	0	LRB2	
+.ends
+
+.subckt	ALWAYS0T_SYNC	a	q
+  .param	L1=Lptl
+  .param	L2=Lptl
+  .param	L3=Lptl
+  .param	R1=2
+  .param	R2=2
+  .param	R3=2
+
+  L1	a	1	L1	
+  L2	clk	2	L2	
+  L3	3	q	L3	
+
+  R1	1	0	R1	 
+  R2	2	0	R2	 
+  R3	3	0	R3	 
+.ends
+
+.subckt	OR2T	a	b	clk	q
+
+  .param	B1=ICreceive
+  .param	B2=IC/1.25
+  .param	B3=IC
+  .param	B4=IC/1.4
+  .param	B5=B1
+  .param	B6=B2
+  .param	B7=B3
+  .param	B8=B4
+  .param	B9=IC/1.4
+  .param	B10=IC
+  .param	B11=ICreceive
+  .param	B12=IC/1.25
+  .param	B13=IC/1.4
+  .param	B14=IC
+  .param	B15=ICtrans
+  .param	IB1=BiasCoef*Ic0*B1
+  .param	IB2=Ic0*B2
+  .param	IB3=IB1
+  .param	IB4=IB2
+  .param	IB5=Ic0*IC
+  .param	IB6=Ic0*B10
+  .param	IB7=BiasCoef*Ic0*(B11+B12)
+  .param	IB8=BiasCoef*Ic0*B15
+  .param	L1=Lptl
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=Phi0/(2*B2*Ic0)
+  .param	L4=1p
+  .param	L5=L1
+  .param	L6=L2
+  .param	L7=L3
+  .param	L8=L4
+  .param	L9=Phi0/(2*B3*Ic0)
+  .param	L10=Phi0/(B10*Ic0)
+  .param	L11=Lptl
+  .param	L12=(Phi0/(2*B11*Ic0))*(B11/(B11+B12))
+  .param	L13=(Phi0/(2*B11*Ic0))*(B12/(B11+B12))
+  .param	L14=Phi0/(2*B12*Ic0)
+  .param	L15=Phi0/(2*B14*Ic0)
+  .param	L16=Lptl
+  .param	RB1=B0Rs/B1	  
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	RB9=B0Rs/B9
+  .param	RB10=B0Rs/B10
+  .param	RB11=B0Rs/B11	  
+  .param	RB12=B0Rs/B12
+  .param	RB13=B0Rs/B13
+  .param	RB14=B0Rs/B14
+  .param	RB15=B0Rs/B15
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+  .param	LRB4=(RB4/Rsheet)*Lsheet
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP	
+  .param	LRB6=(RB6/Rsheet)*Lsheet+LP
+  .param	LRB7=(RB7/Rsheet)*Lsheet+LP	
+  .param	LRB8=(RB8/Rsheet)*Lsheet
+  .param	LRB9=(RB9/Rsheet)*Lsheet
+  .param	LRB10=(RB10/Rsheet)*Lsheet+LP
+  .param	LRB11=(RB11/Rsheet)*Lsheet+LP
+  .param	LRB12=(RB12/Rsheet)*Lsheet+LP
+  .param	LRB13=(RB13/Rsheet)*Lsheet
+  .param	LRB14=(RB14/Rsheet)*Lsheet+LP
+  .param	LRB15=(RB15/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	7	8	jjmit	 area=B3	
+  B4	7	9	jjmit	 area=B4	
+  B5	11	12	jjmit	 area=B5	
+  B6	14	15	jjmit	 area=B6	
+  B7	17	18	jjmit	 area=B7	
+  B8	17	19	jjmit	 area=B8	
+  B9	21	22	jjmit	 area=B9	
+  B10	22	23	jjmit	 area=B10	
+  B11	26	27	jjmit	 area=B11	
+  B12	30	31	jjmit	 area=B12	
+  B13	32	25	jjmit	 area=B13	
+  B14	25	33	jjmit	 area=B14	
+  B15	34	35	jjmit	 area=B15	
+
+  IB1	0	3	IB1
+  IB2	0	6	IB2
+  IB3	0	13	IB3
+  IB4	0	16	IB4
+  IB5	0	20	IB5
+  IB6	0	24	IB6
+  IB7	0	29	IB7
+  IB8	0	36	IB8
+
+  LB1	3	1	LB
+  LB2	6	4	LB
+  LB3	13	11	LB
+  LB4	16	14	LB
+  LB5	20	10	LB
+  LB6	24	22	LB
+  LB7	29	28	LB
+  LB8	36	34	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	4	7	L3	
+  L4	9	10	L4	
+  L5	b	11	L5	
+  L6	11	14	L6	
+  L7	14	17	L7	
+  L8	19	10	L8	
+  L9	10	21	L9	
+  L10	22	25	L10	
+  L11	clk	26	L11	
+  L12	26	28	L12	
+  L13	28	30	L13	
+  L14	30	32	L14	
+  L15	25	34	L15	
+  L16	34	37	L16	
+
+  RD	37	q	RD	 
+
+  LP1	2	0	LP
+  LP2	5	0	LP
+  LP3	8	0	LP
+  LP5	12	0	LP
+  LP6	15	0	LP
+  LP7	18	0	LP
+  LP10	23	0	LP
+  LP11	27	0	LP
+  LP12	31	0	LP
+  LP14	33	0	LP
+  LP15	35	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	0	LRB2	
+  RB3	7	107	RB3	 
+  LRB3	107	0	LRB3	
+  RB4	7	109	RB4	 
+  LRB4	109	9	LRB4	
+  RB5	11	111	RB5	 
+  LRB5	111	0	LRB5	
+  RB6	14	114	RB6	 
+  LRB6	114	0	LRB6	
+  RB7	17	117	RB7	 
+  LRB7	117	0	LRB7	
+  RB8	17	119	RB8	 
+  LRB8	119	19	LRB8	
+  RB9	21	121	RB9	 
+  LRB9	121	22	LRB9	
+  RB10	22	122	RB10	 
+  LRB10	122	0	LRB10	
+  RB11	26	126	RB11	 
+  LRB11	126	0	LRB11	
+  RB12	30	130	RB12	 
+  LRB12	130	0	LRB12	
+  RB13	32	132	RB13	 
+  LRB13	132	25	LRB13	
+  RB14	25	125	RB14	 
+  LRB14	125	0	LRB14	
+  RB15	34	134	RB15	 
+  LRB15	134	0	LRB15	
+.ends
+
+.subckt	MERGE	a	b	q
+
+  .param	B1=IC
+  .param	B2=IC
+  .param	B3=IC/1.4
+  .param	B4=B1
+  .param	B5=B2
+  .param	B6=B3
+  .param	B7=IC
+  .param	IB1=BiasCoef*Ic0*B1
+  .param	IB2=IB1
+  .param	IB3=Ic0*IC
+  .param	IB4=BiasCoef*Ic0*B7
+  .param	L1=Phi0/(4*B1*Ic0)
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=1.2p
+  .param	L4=L1
+  .param	L5=L2
+  .param	L6=L3
+  .param	L7=Phi0/(2*B7*Ic0)
+  .param	L8=Phi0/(4*B7*Ic0)
+  .param	LP1=LP
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet
+  .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP
+  .param	LRB6=(RB6/Rsheet)*Lsheet
+  .param	LRB7=(RB7/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	4	6	jjmit	 area=B3	
+  B4	8	9	jjmit	 area=B4	
+  B5	11	12	jjmit	 area=B5	
+  B6	11	13	jjmit	 area=B6	
+  B7	15	16	jjmit	 area=B7	
+
+  IB1	0	3	IB1
+  IB2	0	10	IB2
+  IB3	0	14	IB3
+  IB4	0	17	IB4
+
+  LB1	3	1	LB
+  LB2	10	8	LB
+  LB3	14	7	LB
+  LB4	17	15	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	6	7	L3	
+  L4	b	8	L4	
+  L5	8	11	L5	
+  L6	7	13	L6	
+  L7	7	15	L7	
+  L8	15	q	L8	
+
+  LP1	2	0	LP
+  LP2	5	0	LP
+  LP4	9	0	LP
+  LP5	12	0	LP
+  LP7	16	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	0	LRB2	
+  RB3	4	106	RB3	 
+  LRB3	106	6	LRB3	
+  RB4	8	108	RB4	 
+  LRB4	108	0	LRB4	
+  RB5	11	111	RB5	 
+  LRB5	111	0	LRB5	
+  RB6	11	113	RB6	 
+  LRB6	113	13	LRB6	
+  RB7	15	115	RB7	 
+  LRB7	115	0	LRB7	
+.ends
+
+.subckt	JTLT	a	q
+
+  .param	B1=ICreceive
+  .param	B2=ICtrans/1.25
+  .param	B3=ICtrans
+  .param	IB1=B1*Ic0*BiasCoef
+  .param	IB2=(B2+B3)*Ic0*BiasCoef
+  .param	L1=Lptl
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=(Phi0/(2*B2*Ic0))*(B2/(B2+B3))
+  .param	L4=(Phi0/(2*B2*Ic0))*(B3/(B2+B3))
+  .param	L5=Lptl
+  .param	RB1=B0Rs/B1	  
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	8	9	jjmit	 area=B3	
+
+  IB1	0	3	IB1
+  IB2	0	7	IB2
+
+  LB1	3	1	LB
+  LB2	7	6	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	4	6	L3	
+  L4	6	8	L4	
+  L5	8	10	L5	
+
+  RD	10	q	RD	 
+
+  LP1	2	0	LP
+  LP2	5	0	LP
+  LP3	9	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	0	LRB2	
+  RB3	8	108	RB3	 
+  LRB3	108	0	LRB3
+  
+.ends
+
+.subckt	XOR	a	b	clk	q
+
+  .param	B1=IC
+  .param	B2=IC
+  .param	B3=IC/1.4
+  .param	B4=B1
+  .param	B5=B2
+  .param	B6=B3
+  .param	B7=IC/1.4
+  .param	B8=IC/1.25
+  .param	B9=IC
+  .param	B10=IC/1.4
+  .param	B11=IC
+  .param	IB1=BiasCoef*Ic0*B1
+  .param	IB2=BiasCoef*Ic0*B4
+  .param	IB3=BiasCoef*Ic0*(B3+B6)
+  .param	IB4=BiasCoef*Ic0*B9
+  .param	IB5=BiasCoef*Ic0*B11
+  .param	L1=Phi0/(4*IC*Ic0)
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=Phi0/(2*B2*Ic0)
+  .param	L4=L1
+  .param	L5=L2
+  .param	L6=L3
+  .param	L7=Phi0/(2*B8*Ic0)
+  .param	L8=Phi0/(4*IC*Ic0)
+  .param	L9=Phi0/(2*B9*Ic0)
+  .param	L10=Phi0/(2*B8*Ic0)
+  .param	L11=Phi0/(4*IC*Ic0)
+  .param	RB1=B0Rs/B1	      
+  .param	RB2=B0Rs/B2	      
+  .param	RB3=B0Rs/B3	         
+  .param	RB4=B0Rs/B4	        
+  .param	RB5=B0Rs/B5	        
+  .param	RB6=B0Rs/B6	         
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8	        
+  .param	RB9=B0Rs/B9	        
+  .param	RB10=B0Rs/B10
+  .param	RB11=B0Rs/B11
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet
+  .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP
+  .param	LRB6=(RB6/Rsheet)*Lsheet
+  .param	LRB7=(RB7/Rsheet)*Lsheet
+  .param	LRB8=(RB8/Rsheet)*Lsheet+LP
+  .param	LRB9=(RB9/Rsheet)*Lsheet+LP
+  .param	LRB10=(RB10/Rsheet)*Lsheet
+  .param	LRB11=(RB11/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	4	6	jjmit	 area=B3	
+  B4	8	9	jjmit	 area=B4	
+  B5	11	12	jjmit	 area=B5	
+  B6	11	13	jjmit	 area=B6	
+  B7	7	15	jjmit	 area=B7	
+  B8	16	17	jjmit	 area=B8	
+  B9	18	19	jjmit	 area=B9	
+  B10	21	16	jjmit	 area=B10	
+  B11	22	23	jjmit	 area=B11	
+
+  IB1	0	3	IB1
+  IB2	0	10	IB2
+  IB3	0	14	IB3
+  IB4	0	20	IB4
+  IB5	0	24	IB5
+
+  LB1	3	1	LB
+  LB2	10	8	LB
+  LB3	14	7	LB
+  LB4	20	18	LB
+  LB5	24	22	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	6	7	L3	
+  L4	b	8	L4	
+  L5	8	11	L5	
+  L6	7	13	L6	
+  L7	15	16	L7	
+  L8	clk	18	L8	
+  L9	18	21	L9	
+  L10	16	22	L10	
+  L11	22	q	L11	
+
+  LP1	2	0	LP
+  LP2	5	0	LP
+  LP4	9	0	LP
+  LP5	12	0	LP
+  LP8	17	0	LP
+  LP9	19	0	LP
+  LP11	23	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	0	LRB2	
+  RB3	4	106	RB3	 
+  LRB3	106	6	LRB3	
+  RB4	8	108	RB4	 
+  LRB4	108	0	LRB4	
+  RB5	11	111	RB5	 
+  LRB5	111	0	LRB5	
+  RB6	11	113	RB6	 
+  LRB6	113	13	LRB6	
+  RB7	7	115	RB7	 
+  LRB7	115	15	LRB7	
+  RB8	16	116	RB8	 
+  LRB8	116	0	LRB8	
+  RB9	18	118	RB9	 
+  LRB9	118	0	LRB9	
+  RB10	21	121	RB10	 
+  LRB10	121	16	LRB10	
+  RB11	22	122	RB11	 
+  LRB11	122	0	LRB11	
+.ends
+
+.subckt	XNOR	a	b	clk	q
+  .param	B1=IC
+  .param	B2=IC
+  .param	B3=IC/1.4
+  .param	B4=B1
+  .param	B5=B2
+  .param	B6=B3
+  .param	B7=IC/1.4
+  .param	B8=IC/1.25
+  .param	B9=IC
+  .param	B10=IC/1.4
+  .param	B11=IC
+  .param	B12=IC/3
+  .param	B13=IC/3
+  .param	B14=IC/1.4
+  .param	B15=IC
+  .param	B16=IC
+  .param	B17=IC/3
+  .param	B18=IC/3
+  .param	B19=IC
+  .param	IB1=BiasCoef*Ic0*B1
+  .param	IB2=BiasCoef*Ic0*B4
+  .param	IB3=BiasCoef*Ic0*(B3+B6)
+  .param	IB4=BiasCoef*Ic0*B9
+  .param	IB5=BiasCoef*Ic0*B11
+  .param	IB6=BiasCoef*Ic0*(B14+B13)
+  .param	IB7=BiasCoef*B15*Ic0
+  .param	IB8=BiasCoef*B19*Ic0
+  .param	L1=Phi0/(4*IC*Ic0)
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=Phi0/(2*B2*Ic0)
+  .param	L4=L1
+  .param	L5=L2
+  .param	L6=L3
+  .param	L7=Phi0/(2*B8*Ic0)
+  .param	L8=Phi0/(4*IC*Ic0)
+  .param	L9=(Phi0/(2*B9*Ic0))/2
+  .param	L10=(Phi0/(2*B9*Ic0))/2
+  .param	L11=Phi0/(2*B8*Ic0)
+  .param	L12=Phi0/(2*B11*Ic0)
+  .param	L13=2p
+  .param	L14=4p
+  .param	L15=(Phi0/(2*B9*Ic0))/2
+  .param	L16=Phi0/(2*B15*Ic0)
+  .param	L17=Phi0/(2*B16*Ic0)
+  .param	L18=1p
+  .param	L19=4p
+  .param	L20=Phi0/(4*IC*Ic0)
+  .param	RB1=B0Rs/B1	      
+  .param	RB2=B0Rs/B2	      
+  .param	RB3=B0Rs/B3	         
+  .param	RB4=B0Rs/B4	        
+  .param	RB5=B0Rs/B5	        
+  .param	RB6=B0Rs/B6	         
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8	        
+  .param	RB9=B0Rs/B9	        
+  .param	RB10=B0Rs/B10
+  .param	RB11=B0Rs/B11
+  .param	RB12=B0Rs/B12
+  .param	RB13=B0Rs/B13
+  .param	RB14=B0Rs/B14
+  .param	RB15=B0Rs/B15
+  .param	RB16=B0Rs/B16
+  .param	RB17=B0Rs/B17
+  .param	RB18=B0Rs/B18
+  .param	RB19=B0Rs/B19
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet
+  .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP
+  .param	LRB6=(RB6/Rsheet)*Lsheet
+  .param	LRB7=(RB7/Rsheet)*Lsheet
+  .param	LRB8=(RB8/Rsheet)*Lsheet+LP
+  .param	LRB9=(RB9/Rsheet)*Lsheet+LP
+  .param	LRB10=(RB10/Rsheet)*Lsheet
+  .param	LRB11=(RB11/Rsheet)*Lsheet+LP
+  .param	LRB12=(RB12/Rsheet)*Lsheet
+  .param	LRB13=(RB13/Rsheet)*Lsheet
+  .param	LRB14=(RB14/Rsheet)*Lsheet
+  .param	LRB15=(RB15/Rsheet)*Lsheet+LP
+  .param	LRB16=(RB16/Rsheet)*Lsheet+LP
+  .param	LRB17=(RB17/Rsheet)*Lsheet
+  .param	LRB18=(RB18/Rsheet)*Lsheet+LP
+  .param	LRB19=(RB19/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	4	6	jjmit	 area=B3	
+  B4	8	9	jjmit	 area=B4	
+  B5	11	12	jjmit	 area=B5	
+  B6	11	13	jjmit	 area=B6	
+  B7	7	15	jjmit	 area=B7	
+  B8	16	17	jjmit	 area=B8	
+  B9	18	19	jjmit	 area=B9	
+  B10	22	16	jjmit	 area=B10	
+  B11	23	24	jjmit	 area=B11	
+  B12	26	27	jjmit	 area=B12	
+  B13	29	30	jjmit	 area=B13	
+  B14	32	31	jjmit	 area=B14	
+  B15	33	34	jjmit	 area=B15	
+  B16	36	37	jjmit	 area=B16	
+  B17	32	38	jjmit	 area=B17	
+  B18	30	39	jjmit	 area=B18	
+  B19	40	41	jjmit	 area=B19	
+
+  IB1	0	3	IB1
+  IB2	0	10	IB2
+  IB3	0	14	IB3
+  IB4	0	20	IB4
+  IB5	0	25	IB5
+  IB6	0	28	IB6
+  IB7	0	35	IB7
+  IB8	0	42	IB8
+
+  LB1	3	1	LB
+  LB2	10	8	LB
+  LB3	14	7	LB
+  LB4	20	18	LB
+  LB5	25	23	LB
+  LB6	27	28	LB
+  LB7	35	33	LB
+  LB8	42	40	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	6	7	L3	
+  L4	b	8	L4	
+  L5	8	11	L5	
+  L6	7	13	L6	
+  L7	15	16	L7	
+  L8	clk	18	L8	
+  L9	18	21	L9	
+  L10	21	22	L10	
+  L11	16	23	L11	
+  L12	23	26	L12	
+  L13	27	29	L13	
+  L14	31	27	L14	
+  L15	21	33	L15	
+  L16	33	36	L16	
+  L17	36	32	L17	
+  L18	38	30	L18	
+  L19	30	40	L19	
+  L20	40	q	L20	
+
+  LP1	2	0	LP
+  LP2	5	0	LP
+  LP4	9	0	LP
+  LP5	12	0	LP
+  LP8	17	0	LP
+  LP9	19	0	LP
+  LP11	24	0	LP
+  LP15	34	0	LP
+  LP16	37	0	LP
+  LP18	39	0	LP
+  LP19	41	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	0	LRB2	
+  RB3	4	106	RB3	 
+  LRB3	106	6	LRB3	
+  RB4	8	108	RB4	 
+  LRB4	108	0	LRB4	
+  RB5	11	111	RB5	 
+  LRB5	111	0	LRB5	
+  RB6	11	113	RB6	 
+  LRB6	113	13	LRB6	
+  RB7	7	115	RB7	 
+  LRB7	115	15	LRB7	
+  RB8	16	116	RB8	 
+  LRB8	116	0	LRB8	
+  RB9	18	118	RB9	 
+  LRB9	118	0	LRB9	
+  RB10	22	122	RB10	 
+  LRB10	122	16	LRB10	
+  RB11	23	123	RB11	 
+  LRB11	123	0	LRB11	
+  RB12	26	126	RB12	 
+  LRB12	126	27	LRB12	
+  RB13	29	129	RB13	 
+  LRB13	129	30	LRB13	
+  RB14	32	131	RB14	 
+  LRB14	131	31	LRB14	
+  RB15	33	133	RB15	 
+  LRB15	133	0	LRB15	
+  RB16	36	136	RB16	 
+  LRB16	136	0	LRB16	
+  RB17	32	138	RB17	 
+  LRB17	138	38	LRB17	
+  RB18	30	130	RB18	 
+  LRB18	130	0	LRB18	
+  RB19	40	140	RB19	 
+  LRB19	140	0	LRB19	
+.ends
+
+.subckt	ALWAYS0_ASYNC_NOA	 q
+
+  .param	B1=IC
+  .param	IB1=B1*Ic0*BiasCoef
+  .param	L1=Phi0/(2*B1*Ic0)
+  .param	L2=Phi0/(4*B1*Ic0)
+  .param	R1=2
+  .param	RB1=B0Rs/B1	  
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+
+  B1	2	3	jjmit	 area=B1	
+
+  IB1	0	4	IB1
+
+  LB1	4	2	LB
+
+  LP1	3	0	LP
+
+  L1	1	2	L1	
+  L2	2	q	L2	
+
+  R1	1	0	R1	 
+
+  RB1	2	102	RB1	 
+  LRB1	102	0	LRB1	
+.ends
+
+.subckt	NOT	a	clk	q
+
+  .param	B1=IC
+  .param	B2=IC/3
+  .param	B3=IC/3
+  .param	B4=IC/1.4
+  .param	B5=IC
+  .param	B6=IC/3
+  .param	B7=IC/3
+  .param	B8=IC
+  .param	IB1=BiasCoef*B1*Ic0
+  .param	IB2=BiasCoef*Ic0*(B3+B6)
+  .param	IB3=BiasCoef*B5*Ic0
+  .param	IB4=BiasCoef*B8*Ic0
+  .param	L1=Phi0/(4*IC*Ic0)
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=2p
+  .param	L4=8p
+  .param	L5=Phi0/(4*IC*Ic0)
+  .param	L6=Phi0/(2*B4*Ic0)
+  .param	L7=2p
+  .param	L8=8p
+  .param	L9=Phi0/(4*IC*Ic0)
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet
+  .param	LRB3=(RB3/Rsheet)*Lsheet
+  .param	LRB4=(RB4/Rsheet)*Lsheet
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP
+  .param	LRB6=(RB6/Rsheet)*Lsheet
+  .param	LRB7=(RB7/Rsheet)*Lsheet+LP
+  .param	LRB8=(RB8/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	7	8	jjmit	 area=B3	
+  B4	9	10	jjmit	 area=B4	
+  B5	11	12	jjmit	 area=B5	
+  B6	10	14	jjmit	 area=B6	
+  B7	8	15	jjmit	 area=B7	
+  B8	16	17	jjmit	 area=B8	
+
+  IB1	0	3	IB1
+  IB2	0	6	IB2
+  IB3	0	13	IB3
+  IB4	0	18	IB4
+
+  LB1	3	1	LB
+  LB2	6	5	LB
+  LB3	13	11	LB
+  LB4	18	16	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	5	7	L3	
+  L4	5	9	L4	
+  L5	clk	11	L5	
+  L6	11	10	L6	
+  L7	8	14	L7	
+  L8	8	16	L8	
+  L9	16	q	L9	
+
+  LP1	2	0	LP
+  LP5	12	0	LP
+  LP7	15	0	LP
+  LP8	17	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	5	LRB2	
+  RB3	7	107	RB3	 
+  LRB3	107	8	LRB3	
+  RB4	9	109	RB4	 
+  LRB4	109	10	LRB4	
+  RB5	11	111	RB5	 
+  LRB5	111	0	LRB5	
+  RB6	10	110	RB6	 
+  LRB6	110	14	LRB6	
+  RB7	8	108	RB7	 
+  LRB7	108	0	LRB7	
+  RB8	16	116	RB8	 
+  LRB8	116	0	LRB8	
+.ends
+
+.subckt	DCSFQ_PTLTX	a	q
+  .param	B1=0.9*Ic
+  .param	B2=0.9*Ic
+  .param	B3=IC
+  .param	B4=ICtrans
+  .param	IB1=(11/9)*Ic0*B2
+  .param	IB2=BiasCoef*Ic0*(B3+B4)
+  .param	L1=1p
+  .param	L2=3.9p
+  .param	L3=0.6p
+  .param	L4=1.1p
+  .param	L5=Phi0/(2*B2*Ic0)
+  .param	L6=Phi0/(4*B3*Ic0)
+  .param	L7=Phi0/(4*B3*Ic0)
+  .param	L8=Lptl
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	LRB1=(RB1/Rsheet)*Lsheet
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+  .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+
+  B1	2	3	jjmit	 area=B1	
+  B2	5	6	jjmit	 area=B2	
+  B3	7	8	jjmit	 area=B3	
+  B4	11	12	jjmit	 area=B4	
+
+  IB1	0	4	IB1
+  IB2	0	10	IB2
+
+  LB1	4	3	LB
+  LB2	10	9	LB
+
+  LP2	6	0	LP
+  LP3	8	0	LP
+  LP4	12	0	LP
+
+  L1	a	1	L1	
+  L2	1	0	L2	
+  L3	1	2	L3	
+  L4	3	5	L4	
+  L5	5	7	L5	
+  L6	7	9	L6	
+  L7	9	11	L7	
+  L8	11	13	L8	
+
+  RD	13	q	RD	 
+
+  RB1	2	102	RB1	 
+  LRB1	102	3	LRB1	
+  RB2	5	105	RB2	 
+  LRB2	105	0	LRB2	
+  RB3	7	107	RB3	 
+  LRB3	107	0	LRB3	
+  RB4	11	111	RB4	 
+  LRB4	111	0	LRB4	
+.ends
+
+.subckt	ALWAYS0T_ASYNC	a	q
+  L1	a	1	Lptl	
+  L2	2	q	Lptl	
+
+  R1	1	0	2	 
+  R2	2	0	2	 
+.ends
+
+.subckt	DFF	a	clk	q
+
+  .param	B1=IC
+  .param	B2=IC/1.4
+  .param	B3=IC
+  .param	B4=IC
+  .param	B5=IC
+  .param	B6=IC/1.4
+  .param	B7=IC
+  .param	IB1=BiasCoef*Ic0*B1	        
+  .param	IB2=Ic0*Ic	         
+  .param	IB3=BiasCoef*Ic0*B5	            
+  .param	IB4=BiasCoef*Ic0*B7	        
+  .param	LB1=LB	          
+  .param	LB2=LB	         
+  .param	LB3=LB	          
+  .param	LB4=LB	             
+  .param	L1=Phi0/(4*B1*Ic0)               
+  .param	L2=Phi0/(2*B1*Ic0)         
+  .param	L3=Phi0/(B3*Ic0)       
+  .param	L4=Phi0/(4*B5*Ic0)       
+  .param	L5=Phi0/(2*B5*Ic0)     
+  .param	L6=Phi0/(2*B4*Ic0)       
+  .param	L7=Phi0/(4*B7*Ic0) 
+  .param	RB1=B0Rs/B1	      
+  .param	RB2=B0Rs/B2	      
+  .param	RB3=B0Rs/B3	         
+  .param	RB4=B0Rs/B4	        
+  .param	RB5=B0Rs/B5	        
+  .param	RB6=B0Rs/B6	         
+  .param	RB7=B0Rs/B7
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+  .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP
+  .param	LRB6=(RB6/Rsheet)*Lsheet
+  .param	LRB7=(RB7/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	5	6	jjmit	 area=B3	
+  B4	8	9	jjmit	 area=B4	
+  B5	10	11	jjmit	 area=B5	
+  B6	13	8	jjmit	 area=B6	
+  B7	14	15	jjmit	 area=B7	
+
+  IB1	0	3	IB1
+  IB2	0	7	IB2
+  IB3	0	12	IB3
+  IB4	0	16	IB4
+
+  LB1	3	1	LB
+  LB2	7	5	LB
+  LB3	12	10	LB
+  LB4	16	14	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	5	8	L3	
+  L4	clk	10	L4	
+  L5	10	13	L5	
+  L6	8	14	L6	
+  L7	14	q	L7	
+
+  LP1	2	0	LP
+  LP3	6	0	LP
+  LP4	9	0	LP
+  LP5	11	0	LP
+  LP7	15	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	5	LRB2	
+  RB3	5	105	RB3	 
+  LRB3	105	0	LRB3	
+  RB4	8	108	RB4	 
+  LRB4	108	0	LRB4	
+  RB5	10	110	RB5	 
+  LRB5	110	0	LRB5	
+  RB6	13	113	RB6	 
+  LRB6	113	8	LRB6	
+  RB7	14	114	RB7	 
+  LRB7	114	0	LRB7	
+.ends
+
+.subckt	MERGET	a	b	q
+
+  .param	B1=ICreceive
+  .param	B2=IC/1.25
+  .param	B3=IC
+  .param	B4=IC/1.4
+  .param	B5=B1
+  .param	B6=B2
+  .param	B7=B3
+  .param	B8=B4
+  .param	B9=ICtrans
+  .param	IB1=BiasCoef*B1*Ic0
+  .param	IB2=BiasCoef*B2*Ic0
+  .param	IB3=IB1
+  .param	IB4=IB2
+  .param	IB5=IC*Ic0
+  .param	IB6=BiasCoef*Ic0*B9
+  .param	L1=Lptl
+  .param	L2=Phi0/(2*B2*Ic0)
+  .param	L3=Phi0/(2*B3*Ic0)
+  .param	L4=Phi0/(2*B3*Ic0)*(B9/(B3+B9))
+  .param	L5=L1
+  .param	L6=L2
+  .param	L7=L3
+  .param	L8=L4
+  .param	L9=Phi0/(2*B3*Ic0)*(B3/(B3+B9))
+  .param	L10=Lptl
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	RB9=B0Rs/B9
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+  .param	LRB4=(RB4/Rsheet)*Lsheet
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP
+  .param	LRB6=(RB6/Rsheet)*Lsheet+LP
+  .param	LRB7=(RB7/Rsheet)*Lsheet+LP
+  .param	LRB8=(RB8/Rsheet)*Lsheet
+  .param	LRB9=(RB9/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	7	8	jjmit	 area=B3	
+  B4	7	9	jjmit	 area=B4	
+  B5	11	12	jjmit	 area=B5	
+  B6	14	15	jjmit	 area=B6	
+  B7	17	18	jjmit	 area=B7	
+  B8	17	19	jjmit	 area=B8	
+  B9	21	22	jjmit	 area=B9	
+
+  IB1	0	3	IB1
+  IB2	0	6	IB2
+  IB3	0	13	IB3
+  IB4	0	16	IB4
+  IB5	0	20	IB5
+  IB6	0	23	IB6
+
+  LB1	3	1	LB
+  LB2	6	4	LB
+  LB3	13	11	LB
+  LB4	16	14	LB
+  LB5	20	10	LB
+  LB6	23	21	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	4	7	L3	
+  L4	9	10	L4	
+  L5	b	11	L5	
+  L6	11	14	L6	
+  L7	14	17	L7	
+  L8	19	10	L8	
+  L9	10	21	L9	
+  L10	21	24	L10
+  
+  RD	24	q	RD	 
+
+  LP1	2	0	LP
+  LP2	5	0	LP
+  LP3	8	0	LP
+  LP5	12	0	LP
+  LP6	15	0	LP
+  LP7	18	0	LP
+  LP9	22	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	0	LRB2	
+  RB3	7	107	RB3	 
+  LRB3	107	0	LRB3	
+  RB4	7	109	RB4	 
+  LRB4	109	9	LRB4	
+  RB5	11	111	RB5	 
+  LRB5	111	0	LRB5	
+  RB6	14	114	RB6	 
+  LRB6	114	0	LRB6	
+  RB7	17	117	RB7	 
+  LRB7	117	0	LRB7	
+  RB8	17	119	RB8	 
+  LRB8	119	19	LRB8	
+  RB9	21	121	RB9	 
+  LRB9	121	0	LRB9	
+.ends
+
+.subckt	PTLRX_SFQDC	a	q
+
+  .param	B1=ICreceive
+  .param	B2=IC/1.25
+  .param	B3=3.25
+  .param	B4=1.50
+  .param	B5=1.75
+  .param	B6=2.00
+  .param	B7=3.00
+  .param	B8=1.50
+  .param	B9=1.50
+  .param	B10=2.00
+  .param	IB1=BiasCoef*Ic0*(B1+B2)
+  .param	IB2=280u
+  .param	IB3=150u
+  .param	IB4=220u
+  .param	IB5=80u
+  .param	L1=Lptl
+  .param	L2=(Phi0/(2*B1*Ic0))*(B1/(B1+B2))
+  .param	L3=(Phi0/(2*B1*Ic0))*(B2/(B1+B2))
+  .param	L4=Phi0/(2*B2*Ic0)
+  .param	L5=0.827p
+  .param	L6=1.12884p
+  .param	L7=5.94p
+  .param	L8=1.11098p
+  .param	L9=3.216p
+  .param	L10=0.215p
+  .param	L11=0.954p
+  .param	L12=3.699p
+  .param	L13=2.010p
+  .param	L14=1.510p
+  .param	LR1=0.91p
+  .param	R1=5.74
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	RB9=B0Rs/B9
+  .param	RB10=B0Rs/B10
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+  .param	LRB4=(RB4/Rsheet)*Lsheet
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP
+  .param	LRB6=(RB6/Rsheet)*Lsheet
+  .param	LRB7=(RB7/Rsheet)*Lsheet+LP
+  .param	LRB8=(RB8/Rsheet)*Lsheet
+  .param	LRB9=(RB9/Rsheet)*Lsheet+LP
+  .param	LRB10=(RB10/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	5	6	jjmit	 area=B2	
+  B3	7	8	jjmit	 area=B3	
+  B4	11	12	jjmit	 area=B4	
+  B5	12	13	jjmit	 area=B5	
+  B6	16	17	jjmit	 area=B6	
+  B7	17	18	jjmit	 area=B7	
+  B8	20	21	jjmit	 area=B8	
+  B9	23	24	jjmit	 area=B9	
+  B10	27	28	jjmit	 area=B10	
+
+  IB1	0	4	IB1
+  IB2	0	9	IB2
+  IB3	0	14	IB3
+  IB4	0	22	IB4
+  IB5	0	26	IB5
+
+  LB1	4	3	LB
+  LB2	9	7	LB
+  LB3	14	12	LB
+  LB4	22	21	LB
+  LB5	26	25	LB
+
+  L1	a	1	L1	
+  L2	1	3	L2	
+  L3	3	5	L3	
+  L4	5	7	L4	
+  L5	7	10	L5	
+  L6	11	10	L6	
+  L7	12	15	L7	
+  L8	10	16	L8	
+  L9	15	17	L9	
+  L10	15	20	L10	
+  L11	21	23	L11	
+  L12	23	25	L12	
+  L13	25	27	L13	
+  L14	27	q	L14	
+
+  LR1	19	15	LR1	
+  R1	0	19	R1	 
+
+  LP1	2	0	LP
+  LP2	6	0	LP
+  LP3	8	0	LP
+  LP5	13	0	LP
+  LP7	18	0	LP
+  LP9	24	0	LP
+  LP10	28	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	5	105	RB2	 
+  LRB2	105	0	LRB2	
+  RB3	7	107	RB3	 
+  LRB3	107	0	LRB3	
+  RB4	11	111	RB4	 
+  LRB4	111	12	LRB4	
+  RB5	12	112	RB5	 
+  LRB5	112	0	LRB5	
+  RB6	16	116	RB6	 
+  LRB6	116	17	LRB6	
+  RB7	17	117	RB7	 
+  LRB7	117	0	LRB7	
+  RB8	20	120	RB8	 
+  LRB8	120	21	LRB8	
+  RB9	23	123	RB9	 
+  LRB9	123	0	LRB9	
+  RB10	27	127	RB10	 
+  LRB10	127	0	LRB10	
+.ends
+
+.subckt	ALWAYS0_SYNC	a	clk	q
+
+  .param	B1=IC
+  .param	B2=IC
+  .param	B3=IC
+  .param	IB1=B1*Ic0*BiasCoef
+  .param	IB2=B2*Ic0*BiasCoef
+  .param	IB3=B3*Ic0*BiasCoef
+  .param	L1=Phi0/(4*B1*Ic0)
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=Phi0/(4*B2*Ic0)
+  .param	L4=Phi0/(2*B2*Ic0)
+  .param	L5=Phi0/(2*B3*Ic0)
+  .param	L6=Phi0/(4*B3*Ic0)
+  .param	R1=2
+  .param	R2=2
+  .param	R3=2
+  .param	RB1=B0Rs/B1	  
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	5	6	jjmit	 area=B2	
+  B3	10	11	jjmit	 area=B3	
+
+  IB1	0	3	IB1
+  IB2	0	7	IB2
+  IB3	0	12	IB3
+
+  LB1	3	1	LB
+  LB2	7	5	LB
+  LB3	12	10	LB
+
+  LP1	2	0	LP
+  LP2	6	0	LP
+  LP3	11	0	LP
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	clk	5	L3	
+  L4	5	8	L4	
+  L5	9	10	L5	
+  L6	10	q	L6	
+
+  R1	4	0	R1	 
+  R2	8	0	R2	 
+  R3	9	0	R3	 
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	5	105	RB2	 
+  LRB2	105	0	LRB2	
+  RB3	10	110	RB3	 
+  LRB3	110	0	LRB3	
+.ends
+
+.subckt	AND2	a	b	clk	q
+
+  .param	B1=IC
+  .param	B2=IC/1.4
+  .param	B3=IC
+  .param	B4=IC
+  .param	B5=IC/1.4
+  .param	B6=IC/1.4
+  .param	B7=B1
+  .param	B8=B2
+  .param	B9=B3
+  .param	B10=B4
+  .param	B11=B5
+  .param	B12=B6
+  .param	B13=IC
+  .param	B14=IC
+  .param	B15=IC
+  .param	IB1=BiasCoef*Ic0*B1
+  .param	IB2=BiasCoef*Ic0*B3
+  .param	IB3=IB1
+  .param	IB4=IB2
+  .param	IB5=BiasCoef*Ic0*B13
+  .param	IB6=BiasCoef*Ic0*B14
+  .param	IB7=BiasCoef*Ic0*B15
+  .param	L1=Phi0/(4*IC*Ic0)
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=Phi0/(B3*Ic0)
+  .param	L4=1p
+  .param	L5=Phi0/(2*B4*Ic0)
+  .param	L6=L1
+  .param	L7=L2
+  .param	L8=L3
+  .param	L9=L4
+  .param	L10=L5
+  .param	L11=Phi0/(4*IC*Ic0)
+  .param	L12=Phi0/(2*B13*Ic0)
+  .param	L13=1p
+  .param	L14=1p
+  .param	L15=Phi0/(4*IC*Ic0)
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	RB9=B0Rs/B9
+  .param	RB10=B0Rs/B10
+  .param	RB11=B0Rs/B11
+  .param	RB12=B0Rs/B12
+  .param	RB13=B0Rs/B13
+  .param	RB14=B0Rs/B14
+  .param	RB15=B0Rs/B15
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+  .param	LRB4=(RB4/Rsheet)*Lsheet+LP
+  .param	LRB5=(RB5/Rsheet)*Lsheet
+  .param	LRB6=(RB6/Rsheet)*Lsheet
+  .param	LRB7=(RB7/Rsheet)*Lsheet+LP
+  .param	LRB8=(RB8/Rsheet)*Lsheet
+  .param	LRB9=(RB9/Rsheet)*Lsheet+LP
+  .param	LRB10=(RB10/Rsheet)*Lsheet+LP
+  .param	LRB11=(RB11/Rsheet)*Lsheet
+  .param	LRB12=(RB12/Rsheet)*Lsheet
+  .param	LRB13=(RB13/Rsheet)*Lsheet+LP
+  .param	LRB14=(RB14/Rsheet)*Lsheet+LP
+  .param	LRB15=(RB15/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	5	6	jjmit	 area=B3	
+  B4	8	9	jjmit	 area=B4	
+  B5	8	10	jjmit	 area=B5	
+  B6	12	13	jjmit	 area=B6	
+  B7	14	15	jjmit	 area=B7	
+  B8	17	18	jjmit	 area=B8	
+  B9	18	19	jjmit	 area=B9	
+  B10	21	22	jjmit	 area=B10	
+  B11	21	23	jjmit	 area=B11	
+  B12	24	13	jjmit	 area=B12	
+  B13	25	26	jjmit	 area=B13	
+  B14	28	29	jjmit	 area=B14	
+  B15	31	32	jjmit	 area=B15
+
+  IB1	0	3	IB1
+  IB2	0	7	IB2
+  IB3	0	16	IB3
+  IB4	0	20	IB4
+  IB5	0	27	IB5
+  IB6	0	30	IB6
+  IB7	0	33	IB7
+
+  LB1	3	1	LB
+  LB2	7	5	LB
+  LB3	16	14	LB
+  LB4	20	18	LB
+  LB5	27	25	LB
+  LB6	30	28	LB
+  LB7	33	31	LB
+
+  LP1	2	0	LP
+  LP3	6	0	LP
+  LP4	0	9	LP
+  LP7	15	0	LP
+  LP9	19	0	LP
+  LP10	22	0	LP
+  LP13	26	0	LP
+  LP14	29	0	LP
+  LP15	32	0	LP
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	5	8	L3	
+  L4	10	11	L4	
+  L5	8	12	L5	
+  L6	b	14	L6	
+  L7	14	17	L7	
+  L8	18	21	L8	
+  L9	11	23	L9	
+  L10	21	24	L10	
+  L11	clk	25	L11	
+  L12	25	28	L12	
+  L13	28	11	L13	
+  L14	13	31	L14	
+  L15	31	q	L15	
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	5	LRB2	
+  RB3	5	105	RB3	 
+  LRB3	105	0	LRB3	
+  RB4	108	8	RB4	 
+  LRB4	0	108	LRB4	
+  RB5	8	110	RB5	 
+  LRB5	110	10	LRB5	
+  RB6	12	112	RB6	 
+  LRB6	112	13	LRB6	
+  RB7	14	114	RB7	 
+  LRB7	114	0	LRB7	
+  RB8	17	117	RB8	 
+  LRB8	117	18	LRB8	
+  RB9	18	118	RB9	 
+  LRB9	118	0	LRB9	
+  RB10	21	121	RB10	 
+  LRB10	121	0	LRB10	
+  RB11	123	21	RB11	 
+  LRB11	23	123	LRB11	
+  RB12	24	124	RB12	 
+  LRB12	124	13	LRB12	
+  RB13	25	125	RB13	 
+  LRB13	125	0	LRB13	
+  RB14	28	128	RB14	 
+  LRB14	128	0	LRB14	
+  RB15	31	131	RB15	 
+  LRB15	131	0	LRB15	
+.ends
+
+.subckt	BUFFT	a	q
+
+  .param	B1=ICreceive
+  .param	B2=IC
+  .param	B3=ICtrans
+  .param	IB1=B1*Ic0*BiasCoef
+  .param	IB2=(B2+B3)*Ic0*BiasCoef
+  .param	L1=Lptl
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=Phi0/(4*B2*Ic0)
+  .param	L4=Phi0/(4*B3*Ic0)
+  .param	L5=Lptl
+  .param	RB1=B0Rs/B1
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	8	9	jjmit	 area=B3	
+
+  IB1	0	3	IB1
+  IB2	0	7	IB2
+
+  LB1	3	1	LB
+  LB2	7	6	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	4	6	L3	
+  L4	6	8	L4	
+  L5	8	10	L5	
+
+  RD	10	q	RD	 
+
+  LP1	2	0	LP
+  LP2	5	0	LP
+  LP3	9	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	0	LRB2	
+  RB3	8	108	RB3	 
+  LRB3	108	0	LRB3
+.ends
+
+.subckt	XORT	a	b	clk	q
+
+  .param	B1=ICreceive
+  .param	B2=IC/1.25
+  .param	B3=IC
+  .param	B4=IC
+  .param	B5=B1
+  .param	B6=B2
+  .param	B7=B3
+  .param	B8=B4
+  .param	B9=IC/1.25
+  .param	B10=IC
+  .param	B11=ICreceive
+  .param	B12=IC/1.25
+  .param	B13=IC/1.4
+  .param	B14=ICtrans
+  .param	IB1=BiasCoef*Ic0*(B1+B2)
+  .param	IB2=IB1
+  .param	IB3=BiasCoef*Ic0*(B3+B7+B9)
+  .param	IB4=BiasCoef*Ic0*(B11+B12)
+  .param	IB5=BiasCoef*Ic0*B14
+  .param	LP1=LP
+  .param	L1=Lptl
+  .param	L2=(Phi0/(2*B1*Ic0))*(B1/(B1+B2))
+  .param	L3=(Phi0/(2*B1*Ic0))*(B2/(B1+B2))
+  .param	L4=Phi0/(2*B2*Ic0)
+  .param	L5=Phi0/(B3*Ic0)
+  .param	L6=L1
+  .param	L7=L2
+  .param	L8=L3
+  .param	L9=L4
+  .param	L10=L5
+  .param	L11=1.2p
+  .param	L12=Lptl
+  .param	L13=(Phi0/(2*B11*Ic0))*(B11/(B11+B12))
+  .param	L14=(Phi0/(2*B11*Ic0))*(B12/(B11+B12))
+  .param	L15=Phi0/(2*B12*Ic0)
+  .param	L16=Phi0/(2*B10*Ic0)
+  .param	L17=Lptl
+  .param	RB1=B0Rs/B1	  
+  .param	RB2=B0Rs/B2
+  .param	RB3=B0Rs/B3
+  .param	RB4=B0Rs/B4
+  .param	RB5=B0Rs/B5
+  .param	RB6=B0Rs/B6
+  .param	RB7=B0Rs/B7
+  .param	RB8=B0Rs/B8
+  .param	RB9=B0Rs/B9
+  .param	RB10=B0Rs/B10
+  .param	RB11=B0Rs/B11	  
+  .param	RB12=B0Rs/B12
+  .param	RB13=B0Rs/B13
+  .param	RB14=B0Rs/B14
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+  .param	LRB4=(RB4/Rsheet)*Lsheet
+  .param	LRB5=(RB5/Rsheet)*Lsheet+LP	
+  .param	LRB6=(RB6/Rsheet)*Lsheet+LP
+  .param	LRB7=(RB7/Rsheet)*Lsheet+LP	
+  .param	LRB8=(RB8/Rsheet)*Lsheet
+  .param	LRB9=(RB9/Rsheet)*Lsheet
+  .param	LRB10=(RB10/Rsheet)*Lsheet+LP
+  .param	LRB11=(RB11/Rsheet)*Lsheet+LP
+  .param	LRB12=(RB12/Rsheet)*Lsheet+LP
+  .param	LRB13=(RB13/Rsheet)*Lsheet
+  .param	LRB14=(RB14/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	5	6	jjmit	 area=B2	
+  B3	7	8	jjmit	 area=B3	
+  B4	7	9	jjmit	 area=B4	
+  B5	11	12	jjmit	 area=B5	
+  B6	15	16	jjmit	 area=B6	
+  B7	17	18	jjmit	 area=B7	
+  B8	17	19	jjmit	 area=B8	
+  B9	21	22	jjmit	 area=B9	
+  B10	22	23	jjmit	 area=B10	
+  B11	24	25	jjmit	 area=B11	
+  B12	28	29	jjmit	 area=B12	
+  B13	30	22	jjmit	 area=B13	
+  B14	31	32	jjmit	 area=B14	
+
+  IB1	0	4	IB1
+  IB2	0	14	IB2
+  IB3	0	20	IB3
+  IB4	0	27	IB4
+  IB5	0	33	IB5
+
+  LB1	4	3	LB
+  LB2	14	13	LB
+  LB3	20	10	LB
+  LB4	27	26	LB
+  LB5	33	31	LB
+
+  L1	a	1	L1	
+  L2	1	3	L2	
+  L3	3	5	L3	
+  L4	5	7	L4	
+  L5	9	10	L5	
+  L6	b	11	L6	
+  L7	11	13	L7	
+  L8	13	15	L8	
+  L9	15	17	L9	
+  L10	10	19	L10	
+  L11	10	21	L11	
+  L12	clk	24	L12	
+  L13	24	26	L13	
+  L14	26	28	L14	
+  L15	28	30	L15	
+  L16	22	31	L16	
+  L17	31	34	L17	
+
+  RD	34	q	RD	 
+
+  LP1	2	0	LP
+  LP2	6	0	LP
+  LP3	8	0	LP
+  LP5	12	0	LP
+  LP6	16	0	LP
+  LP7	18	0	LP
+  LP10	23	0	LP
+  LP11	25	0	LP
+  LP12	29	0	LP
+  LP14	32	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	5	105	RB2	 
+  LRB2	105	0	LRB2	
+  RB3	7	107	RB3	 
+  LRB3	107	0	LRB3	
+  RB4	7	109	RB4	 
+  LRB4	109	9	LRB4	
+  RB5	11	111	RB5	 
+  LRB5	111	0	LRB5	
+  RB6	15	115	RB6	 
+  LRB6	115	0	LRB6	
+  RB7	17	117	RB7	 
+  LRB7	117	0	LRB7	
+  RB8	17	119	RB8	 
+  LRB8	119	19	LRB8	
+  RB9	21	121	RB9	 
+  LRB9	121	22	LRB9	
+  RB10	22	122	RB10	 
+  LRB10	122	0	LRB10	
+  RB11	24	124	RB11	 
+  LRB11	124	0	LRB11	
+  RB12	28	128	RB12	 
+  LRB12	128	0	LRB12	
+  RB13	30	130	RB13	 
+  LRB13	130	22	LRB13	
+  RB14	31	131	RB14	 
+  LRB14	131	0	LRB14	
+.ends
+
+.subckt	ALWAYS0T_ASYNC_NOA	a	q
+  L1	1	q	Lptl	
+  R1	1	0	2	 
+.ends
+
+.subckt	PTLRX	a	q
+
+  .param	B1=ICreceive
+  .param	B2=IC/1.25
+  .param	B3=IC
+  .param	IB1=BiasCoef*Ic0*B1
+  .param	IB2=Ic0*B2
+  .param	IB3=BiasCoef*Ic0*B3
+  .param	L1=Lptl
+  .param	L2=Phi0/(2*B1*Ic0)
+  .param	L3=Phi0/(2*B2*Ic0)
+  .param	L4=Phi0/(4*IC*Ic0)
+  .param	RB1=B0Rs/B1	      
+  .param	RB2=B0Rs/B2	      
+  .param	RB3=B0Rs/B3	
+  .param	LRB1=(RB1/Rsheet)*Lsheet+LP
+  .param	LRB2=(RB2/Rsheet)*Lsheet+LP
+  .param	LRB3=(RB3/Rsheet)*Lsheet+LP
+
+  B1	1	2	jjmit	 area=B1	
+  B2	4	5	jjmit	 area=B2	
+  B3	7	8	jjmit	 area=B3	
+
+  IB1	0	3	IB1
+  IB2	0	6	IB2
+  IB3	0	9	IB3
+
+  LB1	3	1	LB
+  LB2	6	4	LB
+  LB3	9	7	LB
+
+  L1	a	1	L1	
+  L2	1	4	L2	
+  L3	4	7	L3	
+  L4	7	q	L4	
+
+  LP1	2	0	LP
+  LP2	5	0	LP
+  LP3	8	0	LP
+
+  RB1	1	101	RB1	 
+  LRB1	101	0	LRB1	
+  RB2	4	104	RB2	 
+  LRB2	104	0	LRB2	
+  RB3	7	107	RB3	 
+  LRB3	107	0	LRB3	
+.ends
+

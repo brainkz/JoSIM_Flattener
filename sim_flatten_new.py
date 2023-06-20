@@ -304,6 +304,8 @@ def get_devices(line_iter: str, params: dict, subckt_name: str = 'main'):
             cprint(f"TWO_NODE: {line}, {_type, label, io, val_str}")
             params[subckt_name]['devices'].append((_type, label, io, '', val_str))
         elif line.startswith(FOURNODE_DEVICES):
+            if line.startswith('T'):
+                continue
             _type, label, io, expr = parse_fournode(line)
             cprint(f"FOUR_NODE: {line}, {_type, label, io, expr}")
             params[subckt_name]['devices'].append((_type, label, io, '', expr))
@@ -345,6 +347,8 @@ def parse_controls(file):
             for line in line_iter:
                 if line.startswith('.ENDC'):
                     break
+        elif line.startswith('T'):
+            control_lines.append(line)
     return control_lines
 
 def evaluate(expr, known = {}, copy = False):
@@ -481,7 +485,9 @@ if __name__ == '__main__':
     # file = 'bka_8bit.cir'
     # file = 'TFF.cir'
     # file = 'tff_fa.cir'
-    file = 'tff_fa_fix.cir'
+    # file = 'tff_fa_working.cir'
+    # file = 'tff_fa_fix.cir'
+    file = 'tff_fa_RSFQlib.cir'
     # file = 'pulse_code.cir'
     
     lvl = 1
@@ -528,6 +534,9 @@ if __name__ == '__main__':
         params['main']['instances'] = new_instances
 
     write_flat_file(params, control_lines, temp_file, global_params, lvl, lvl, lvl+2)
+    
+    print(f"FILE {temp_file} WRITTEN")
+    
     status = call(['josim-cli', '-o', csv_path, temp_file, '-V', '1'])
     # status = call(['josim-cli', '-o', csv_path, temp_file, '-V', '1'])
 
